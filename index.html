@@ -4,17 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0d6efd">
-<title>Lumeozone - Gestión Comercial</title>
+<title>Control de ventas</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
 #app{max-width:1000px;margin:0 auto;padding:12px}
 .hidden{display:none!important}
-.kpi{border-radius:10px;color:#fff;padding:14px}
-.kpi b{font-size:1.4rem;display:block}
-.nav-pills{flex-wrap:nowrap;overflow-x:auto}
-.nav-pills .nav-link{white-space:nowrap}
+.kpi{border-radius:10px;color:#fff;padding:12px}
+.kpi b{font-size:1.25rem;display:block}
+.nav-pills,.cats{flex-wrap:nowrap;overflow-x:auto;gap:6px}
+.nav-pills .nav-link,.cats .btn{white-space:nowrap}
+.pcard{border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 </style>
 </head>
 <body>
@@ -22,7 +23,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
 
 <div id="login-section" class="mt-4">
   <div class="card shadow p-4 mb-3">
-    <h3 class="text-center mb-4 text-primary">Lumeozone</h3>
+    <h3 class="text-center mb-4 text-primary">Control de ventas</h3>
     <form id="loginForm">
       <div class="mb-3"><label>Usuario o correo</label>
         <input id="email" class="form-control" required autocapitalize="none" placeholder="Nombre de vendedor o correo admin"></div>
@@ -36,7 +37,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
 
 <div id="dashboard-section" class="hidden">
   <nav class="navbar navbar-dark bg-dark mb-3 rounded px-3 gap-2">
-    <span class="navbar-brand mb-0">Lumeozone</span>
+    <span class="navbar-brand mb-0">Control de ventas</span>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <span class="text-light small" id="user-display"></span>
       <button id="installBtn" class="btn btn-warning btn-sm hidden">📲 Instalar app</button>
@@ -44,9 +45,11 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
     </div>
   </nav>
 
+  <!-- ADMIN -->
   <div id="admin-dashboard" class="hidden">
     <ul class="nav nav-pills mb-3">
       <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#t-res">Resumen</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-cat">Categorías</button></li>
       <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-prod">Productos</button></li>
       <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-prov">Proveedores</button></li>
       <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-comp">Compras</button></li>
@@ -56,35 +59,46 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
 
       <div class="tab-pane fade show active" id="t-res">
         <div class="row g-2 mb-3">
-          <div class="col-6 col-md-3"><div class="kpi bg-primary">Hoy<b id="kHoy">$0</b><small id="kHoyN"></small></div></div>
-          <div class="col-6 col-md-3"><div class="kpi bg-success">Esta semana<b id="kSem">$0</b><small id="kSemN"></small></div></div>
-          <div class="col-6 col-md-3"><div class="kpi bg-dark">Este mes<b id="kMes">$0</b><small id="kMesN"></small></div></div>
-          <div class="col-6 col-md-3"><div class="kpi bg-secondary">Periodo visto<b id="kRango">$0</b><small id="kRangoN"></small></div></div>
+          <div class="col-6 col-md-4"><div class="kpi bg-primary">Hoy<b id="kHoy">$0</b><small id="kHoyN"></small></div></div>
+          <div class="col-6 col-md-4"><div class="kpi bg-success">Esta semana<b id="kSem">$0</b><small id="kSemN"></small></div></div>
+          <div class="col-6 col-md-4"><div class="kpi bg-dark">Este mes<b id="kMes">$0</b><small id="kMesN"></small></div></div>
+          <div class="col-6"><div class="kpi bg-secondary">Ventas del periodo<b id="kRango">$0</b><small id="kRangoN"></small></div></div>
+          <div class="col-6"><div class="kpi bg-danger">Invertido en compras<b id="kInv">$0</b><small id="kInvN"></small></div></div>
         </div>
         <div class="card p-3">
-          <div class="btn-group mb-3" id="rangeBtns">
-            <button class="btn btn-outline-primary active" data-r="dia">Día</button>
-            <button class="btn btn-outline-primary" data-r="semana">Semana</button>
-            <button class="btn btn-outline-primary" data-r="mes">Mes</button>
+          <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+            <div class="btn-group" id="rangeBtns">
+              <button class="btn btn-outline-primary active" data-r="dia">Día</button>
+              <button class="btn btn-outline-primary" data-r="semana">Semana</button>
+              <button class="btn btn-outline-primary" data-r="mes">Mes</button>
+            </div>
+            <label class="ms-auto small">Consultar mes: <input type="month" id="mesSel" class="form-control form-control-sm d-inline-block w-auto"></label>
           </div>
           <div class="table-responsive"><table class="table table-sm align-middle">
-            <thead><tr><th>Fecha</th><th>Vendedor</th><th>Producto</th><th>Cant.</th><th class="text-end">Total</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Vendedor</th><th>Detalle</th><th class="text-end">Total</th></tr></thead>
             <tbody id="salesBody"></tbody></table></div>
         </div>
+      </div>
+
+      <div class="tab-pane fade" id="t-cat">
+        <div class="card p-3 mb-3"><h5>Nueva categoría</h5>
+          <form id="catForm" class="row g-2">
+            <div class="col-8"><input id="catName" class="form-control" placeholder="Ej: Bebidas, Comidas" required></div>
+            <div class="col-4"><button class="btn btn-success w-100">Agregar</button></div>
+          </form></div>
+        <ul id="catList" class="list-group"></ul>
       </div>
 
       <div class="tab-pane fade" id="t-prod">
         <div class="card p-3 mb-3"><h5>Nuevo producto</h5>
           <form id="prodForm" class="row g-2">
             <div class="col-12 col-md-4"><input id="pName" class="form-control" placeholder="Nombre" required></div>
-            <div class="col-6 col-md-2"><input id="pPrice" type="number" min="0" step="any" class="form-control" placeholder="Precio venta" required></div>
-            <div class="col-6 col-md-3"><select id="pSup" class="form-select"></select></div>
-            <div class="col-12 col-md-3"><select id="pMode" class="form-select">
-              <option value="unidad">Compra: costo por unidad</option><option value="total">Compra: costo total</option></select></div>
-            <div class="col-12"><button class="btn btn-success">Guardar producto</button></div>
+            <div class="col-6 col-md-3"><input id="pPrice" type="number" min="0" step="any" class="form-control" placeholder="Precio de venta" required></div>
+            <div class="col-6 col-md-3"><select id="pCat" class="form-select" required></select></div>
+            <div class="col-12 col-md-2"><button class="btn btn-success w-100">Guardar</button></div>
           </form></div>
         <div class="card p-3"><div class="table-responsive"><table class="table table-sm align-middle">
-          <thead><tr><th>Producto</th><th>Precio</th><th>Proveedor</th><th>Costo</th><th></th></tr></thead>
+          <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th></th></tr></thead>
           <tbody id="prodBody"></tbody></table></div></div>
       </div>
 
@@ -99,12 +113,14 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
       </div>
 
       <div class="tab-pane fade" id="t-comp">
-        <div class="card p-3 mb-3"><h5>Registrar compra a proveedor</h5>
+        <div class="card p-3 mb-3"><h5>Registrar compra</h5>
           <form id="compForm" class="row g-2">
-            <div class="col-12 col-md-5"><select id="cProd" class="form-select" required></select></div>
-            <div class="col-6 col-md-3"><input id="cQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
-            <div class="col-6 col-md-4"><input id="cCost" type="number" min="0" step="any" class="form-control" placeholder="Costo" required></div>
-            <div class="col-12"><small class="text-muted" id="cHint"></small></div>
+            <div class="col-12 col-md-4"><select id="cSup" class="form-select"></select></div>
+            <div class="col-12 col-md-4"><select id="cProd" class="form-select" required></select></div>
+            <div class="col-12 col-md-4"><input id="cFecha" type="date" class="form-control" required></div>
+            <div class="col-4"><input id="cQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
+            <div class="col-4"><input id="cCost" type="number" min="0" step="any" class="form-control" placeholder="Costo" required></div>
+            <div class="col-4"><select id="cModo" class="form-select"><option value="unidad">Por unidad</option><option value="total">Total</option></select></div>
             <div class="col-12"><button class="btn btn-success">Guardar compra</button></div>
           </form></div>
         <div class="card p-3"><div class="table-responsive"><table class="table table-sm">
@@ -124,18 +140,36 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
     </div>
   </div>
 
+  <!-- VENDEDOR -->
   <div id="seller-dashboard" class="hidden">
-    <h4 class="text-success mb-3">Registrar venta 🛒</h4>
-    <div class="card p-3 mb-3">
-      <form id="saleForm" class="row g-2">
-        <div class="col-12"><select id="sProd" class="form-select" required></select></div>
-        <div class="col-6"><input id="sQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
-        <div class="col-6"><input id="sTotal" class="form-control" disabled placeholder="Total"></div>
-        <div class="col-12"><button class="btn btn-primary w-100">Registrar venta</button></div>
-      </form>
+    <div id="sHome">
+      <button class="btn btn-success btn-lg w-100 mb-3" onclick="startSale()">＋ Nueva venta</button>
+      <div class="card p-3"><h5>Ventas de hoy: <span id="myTotal">$0</span></h5>
+        <ul id="mySales" class="list-group list-group-flush"></ul></div>
     </div>
-    <div class="card p-3"><h5>Mis ventas de hoy: <span id="myTotal">$0</span></h5>
-      <ul id="mySales" class="list-group list-group-flush"></ul></div>
+
+    <div id="sNew" class="hidden">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0" id="sTitle">Nueva venta</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="cancelSale()">Cancelar</button>
+      </div>
+      <div class="cats d-flex mb-3" id="catBar"></div>
+      <div class="row g-2 mb-3" id="prodGrid"></div>
+      <div class="card p-3">
+        <h6>Orden</h6>
+        <ul id="cartList" class="list-group list-group-flush mb-2"></ul>
+        <div class="d-flex justify-content-between align-items-center">
+          <b class="fs-5">Total: <span id="cartTotal">$0</span></b>
+          <button class="btn btn-primary" id="finBtn" onclick="finishSale()">Finalizar orden</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sDone" class="hidden text-center card p-4">
+      <p class="mb-1 text-muted">Total a cobrar</p>
+      <div class="display-4 fw-bold text-success mb-3" id="doneTotal"></div>
+      <button class="btn btn-primary" onclick="backHome()">Listo</button>
+    </div>
   </div>
 </div>
 </div>
@@ -156,7 +190,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app), db = getFirestore(app);
-const auth2 = getAuth(initializeApp(firebaseConfig, "secundaria")); // crea vendedores sin cerrar la sesión del admin
+const auth2 = getAuth(initializeApp(firebaseConfig, "secundaria"));
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -164,12 +198,16 @@ const money = n => '$' + Number(n || 0).toLocaleString('es-CO');
 const slug = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 const DOM = '@vendedor.lumeozone.app';
 const toEmail = u => u.includes('@') ? u.trim() : slug(u) + DOM;
-const toPass = p => /^\d{4}$/.test(p) ? 'lz' + p + 'ok' : p; // Firebase exige 6+ caracteres
+const toPass = p => /^\d{4}$/.test(p) ? 'lz' + p + 'ok' : p;
 const col = n => collection(db, n);
 const fmt = d => d.toLocaleString('es-CO', {dateStyle: 'short', timeStyle: 'short'});
+const fmtD = d => d.toLocaleDateString('es-CO');
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const show = (id, v) => $(id).classList.toggle('hidden', !v);
+const rows = async c => (await getDocs(col(c))).docs.map(d => ({ id: d.id, ...d.data() }));
+const sum = (l, k) => l.reduce((a, x) => a + (x[k] || 0), 0);
 
-let me = null, prods = [], sups = [], sales = [], range = 'dia';
+let me = null, prods = [], sups = [], cats = [], sales = [], compras = [], hist = null, range = 'dia';
 
 const startOf = r => {
   const n = new Date(), d = new Date(n.getFullYear(), n.getMonth(), n.getDate());
@@ -177,6 +215,8 @@ const startOf = r => {
   if (r === 'semana') { d.setDate(d.getDate() - (n.getDay() + 6) % 7); return d; }
   return new Date(n.getFullYear(), n.getMonth(), 1);
 };
+const fetchRange = async (c, from, to) => (await getDocs(query(col(c), where("fecha", ">=", from), where("fecha", "<", to), orderBy("fecha", "desc"))))
+  .docs.map(d => { const x = d.data(); return { id: d.id, ...x, f: x.fecha.toDate() }; });
 
 // ---------- login ----------
 $('loginForm').addEventListener('submit', async e => {
@@ -193,6 +233,7 @@ onAuthStateChanged(auth, async user => {
   try {
     const s = await getDoc(doc(db, "usuarios", user.uid));
     if (!s.exists()) { box.innerText = "Usuario no registrado. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
+    if (s.data().activo === false) { box.innerText = "Tu usuario está inactivo. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
     me = { uid: user.uid, email: user.email, ...s.data() };
     show('login-section', false); show('dashboard-section', true);
     $('user-display').innerText = `${me.nombre || me.email} (${me.role === 'admin' ? 'Admin' : 'Vendedor'})`;
@@ -202,103 +243,121 @@ onAuthStateChanged(auth, async user => {
 });
 
 // ---------- ADMIN ----------
-async function loadAdmin() { await loadSups(); await loadProds(); await Promise.all([loadUsers(), loadCompras(), loadSales()]); }
+async function loadAdmin() {
+  [cats, sups] = await Promise.all([rows("categorias"), rows("proveedores")]);
+  prods = await rows("products");
+  renderCats(); renderSups(); renderProds();
+  $('mesSel').value = dayKey().slice(0, 7); $('cFecha').value = dayKey(); hist = null;
+  await Promise.all([loadUsers(), loadCompras(), loadSales()]);
+}
+const catName = id => (cats.find(c => c.id === id) || {}).nombre || 'Sin categoría';
 
-async function loadSups() {
-  sups = (await getDocs(col("proveedores"))).docs.map(d => ({ id: d.id, ...d.data() }));
+function renderCats() {
+  $('catList').innerHTML = cats.map(c => `<li class="list-group-item d-flex justify-content-between">${esc(c.nombre)}
+    <button class="btn btn-sm btn-outline-danger" onclick="delDoc('categorias','${c.id}')">Borrar</button></li>`).join('')
+    || '<li class="list-group-item text-muted">Sin categorías</li>';
+  $('pCat').innerHTML = '<option value="">Categoría…</option>' + cats.map(c => `<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+}
+function renderSups() {
   $('supList').innerHTML = sups.map(s => `<li class="list-group-item d-flex justify-content-between">
     <span>${esc(s.nombre)} <small class="text-muted">${esc(s.telefono || '')}</small></span>
     <button class="btn btn-sm btn-outline-danger" onclick="delDoc('proveedores','${s.id}')">Borrar</button></li>`).join('')
     || '<li class="list-group-item text-muted">Sin proveedores</li>';
-  $('pSup').innerHTML = '<option value="">Sin proveedor</option>' + sups.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+  $('cSup').innerHTML = '<option value="">Sin proveedor</option>' + sups.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
 }
-
-async function loadProds() {
-  prods = (await getDocs(col("products"))).docs.map(d => ({ id: d.id, ...d.data() }));
-  const supName = id => (sups.find(s => s.id === id) || {}).nombre || '—';
-  $('prodBody').innerHTML = prods.map(p => `<tr><td>${esc(p.name)}</td><td>${money(p.price)}</td>
-    <td>${esc(supName(p.proveedorId))}</td><td>por ${esc(p.costoModo || 'unidad')}</td>
+function renderProds() {
+  $('prodBody').innerHTML = prods.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(catName(p.categoriaId))}</td><td>${money(p.price)}</td>
     <td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="editPrice('${p.id}')">Precio</button>
     <button class="btn btn-sm btn-outline-danger" onclick="delDoc('products','${p.id}')">X</button></td></tr>`).join('')
-    || '<tr><td colspan="5" class="text-muted">Sin productos</td></tr>';
+    || '<tr><td colspan="4" class="text-muted">Sin productos</td></tr>';
   $('cProd').innerHTML = '<option value="">Producto…</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
 }
 
 async function loadUsers() {
-  const snap = await getDocs(col("usuarios"));
-  $('userList').innerHTML = snap.docs.map(d => d.data()).map(u => `<li class="list-group-item d-flex justify-content-between">
-    <span>${esc(u.nombre || u.email)}</span><span class="badge ${u.role === 'admin' ? 'bg-primary' : 'bg-success'}">${esc(u.role || '')}</span></li>`).join('');
+  const l = await rows("usuarios");
+  $('userList').innerHTML = l.map(u => {
+    const inact = u.activo === false;
+    return `<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>${esc(u.nombre || u.email)} <span class="badge ${u.role === 'admin' ? 'bg-primary' : inact ? 'bg-secondary' : 'bg-success'}">${u.role === 'admin' ? 'admin' : inact ? 'inactivo' : 'activo'}</span></span>
+    ${u.role === 'admin' ? '' : `<button class="btn btn-sm ${inact ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleUser('${u.id}',${inact})">${inact ? 'Activar' : 'Inactivar'}</button>`}</li>`;
+  }).join('');
 }
+window.toggleUser = async (id, activar) => { await updateDoc(doc(db, "usuarios", id), { activo: activar }); loadUsers(); };
 
 async function loadCompras() {
-  const snap = await getDocs(query(col("compras"), orderBy("fecha", "desc"), limit(20)));
-  $('compBody').innerHTML = snap.docs.map(d => d.data()).map(c => `<tr><td>${fmt(c.fecha.toDate())}</td><td>${esc(c.producto)}</td>
+  const snap = await getDocs(query(col("compras"), orderBy("fecha", "desc"), limit(30)));
+  $('compBody').innerHTML = snap.docs.map(d => d.data()).map(c => `<tr><td>${fmtD(c.fecha.toDate())}</td><td>${esc(c.producto)}</td>
     <td>${esc(c.proveedor || '—')}</td><td>${c.cantidad}</td><td>${money(c.costoUnidad)}</td><td class="text-end">${money(c.costoTotal)}</td></tr>`).join('')
     || '<tr><td colspan="6" class="text-muted">Sin compras</td></tr>';
 }
 
 async function loadSales() {
-  const from = new Date(Math.min(startOf('mes'), startOf('semana')));
-  const snap = await getDocs(query(col("ventas"), where("fecha", ">=", from), orderBy("fecha", "desc")));
-  sales = snap.docs.map(d => { const v = d.data(); return { ...v, f: v.fecha.toDate() }; });
-  const sum = r => { const l = sales.filter(v => v.f >= startOf(r)); return [l.reduce((a, v) => a + v.totalGanancia, 0), l.length]; };
+  const from = new Date(Math.min(startOf('mes'), startOf('semana'))), to = new Date(2100, 0, 1);
+  [sales, compras] = await Promise.all([fetchRange("ventas", from, to), fetchRange("compras", from, to)]);
   [['Hoy', 'dia'], ['Sem', 'semana'], ['Mes', 'mes']].forEach(([k, r]) => {
-    const [t, n] = sum(r); $('k' + k).innerText = money(t); $('k' + k + 'N').innerText = n + ' ventas';
+    const l = sales.filter(v => v.f >= startOf(r));
+    $('k' + k).innerText = money(sum(l, 'totalGanancia')); $('k' + k + 'N').innerText = l.length + ' ventas';
   });
-  renderSales();
+  render();
 }
-function renderSales() {
-  const l = sales.filter(v => v.f >= startOf(range));
-  $('salesBody').innerHTML = l.map(v => `<tr><td>${fmt(v.f)}</td><td>${esc(v.vendedorNombre || v.vendedorEmail)}</td>
-    <td>${esc((v.productosDetalles || []).join(', '))}</td><td>${v.cantidad || ''}</td><td class="text-end">${money(v.totalGanancia)}</td></tr>`).join('')
-    || '<tr><td colspan="5" class="text-muted">Sin ventas en este periodo</td></tr>';
-  $('kRango').innerText = money(l.reduce((a, v) => a + v.totalGanancia, 0)); $('kRangoN').innerText = l.length + ' ventas';
+function render() {
+  let v, c;
+  if (hist) { v = hist.v; c = hist.c; }
+  else { const s = startOf(range); v = sales.filter(x => x.f >= s); c = compras.filter(x => x.f >= s); }
+  $('salesBody').innerHTML = v.map(x => `<tr><td>${fmt(x.f)}</td><td>${esc(x.vendedorNombre || x.vendedorEmail)}</td>
+    <td>${esc((x.productosDetalles || []).join(', '))}</td><td class="text-end">${money(x.totalGanancia)}</td></tr>`).join('')
+    || '<tr><td colspan="4" class="text-muted">Sin ventas en este periodo</td></tr>';
+  $('kRango').innerText = money(sum(v, 'totalGanancia')); $('kRangoN').innerText = v.length + ' ventas';
+  $('kInv').innerText = money(sum(c, 'costoTotal')); $('kInvN').innerText = c.length + ' compras';
 }
 $('rangeBtns').addEventListener('click', e => {
   const r = e.target.dataset.r; if (!r) return;
-  range = r; [...$('rangeBtns').children].forEach(b => b.classList.toggle('active', b === e.target)); renderSales();
+  range = r; hist = null; $('mesSel').value = dayKey().slice(0, 7);
+  [...$('rangeBtns').children].forEach(b => b.classList.toggle('active', b === e.target)); render();
+});
+$('mesSel').addEventListener('change', async () => {
+  const v = $('mesSel').value;
+  if (!v || v === dayKey().slice(0, 7)) { hist = null; return render(); }
+  const [y, m] = v.split('-').map(Number), from = new Date(y, m - 1, 1), to = new Date(y, m, 1);
+  const [a, b] = await Promise.all([fetchRange("ventas", from, to), fetchRange("compras", from, to)]);
+  hist = { v: a, c: b }; [...$('rangeBtns').children].forEach(x => x.classList.remove('active')); render();
 });
 
 window.delDoc = async (c, id) => { if (!confirm('¿Borrar?')) return; await deleteDoc(doc(db, c, id)); loadAdmin(); };
 window.editPrice = async id => {
   const v = prompt('Nuevo precio de venta:'); if (v === null || v === '' || isNaN(v)) return;
-  await updateDoc(doc(db, "products", id), { price: Number(v) }); loadProds();
+  await updateDoc(doc(db, "products", id), { price: Number(v) }); prods = await rows("products"); renderProds();
 };
 
+$('catForm').addEventListener('submit', async e => {
+  e.preventDefault(); await addDoc(col("categorias"), { nombre: $('catName').value.trim() });
+  e.target.reset(); cats = await rows("categorias"); renderCats(); renderProds();
+});
 $('supForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  await addDoc(col("proveedores"), { nombre: $('sName').value.trim(), telefono: $('sTel').value.trim() });
-  e.target.reset(); loadSups();
+  e.preventDefault(); await addDoc(col("proveedores"), { nombre: $('sName').value.trim(), telefono: $('sTel').value.trim() });
+  e.target.reset(); sups = await rows("proveedores"); renderSups();
 });
 $('prodForm').addEventListener('submit', async e => {
   e.preventDefault();
-  await addDoc(col("products"), { name: $('pName').value.trim(), price: Number($('pPrice').value), proveedorId: $('pSup').value, costoModo: $('pMode').value });
-  e.target.reset(); loadProds();
-});
-
-// El producto define si la compra pide costo por unidad o total
-$('cProd').addEventListener('change', () => {
-  const p = prods.find(x => x.id === $('cProd').value), m = p ? (p.costoModo || 'unidad') : '';
-  $('cCost').placeholder = m ? `Costo ${m === 'unidad' ? 'por unidad' : 'total'}` : 'Costo';
-  $('cHint').innerText = m ? `Este producto se registra con costo ${m === 'unidad' ? 'por unidad' : 'total'}.` : '';
+  await addDoc(col("products"), { name: $('pName').value.trim(), price: Number($('pPrice').value), categoriaId: $('pCat').value });
+  e.target.reset(); prods = await rows("products"); renderProds();
 });
 $('compForm').addEventListener('submit', async e => {
   e.preventDefault();
   const p = prods.find(x => x.id === $('cProd').value); if (!p) return;
-  const q = Number($('cQty').value), c = Number($('cCost').value), porU = (p.costoModo || 'unidad') === 'unidad';
-  await addDoc(col("compras"), { productoId: p.id, producto: p.name, proveedorId: p.proveedorId || '',
-    proveedor: (sups.find(s => s.id === p.proveedorId) || {}).nombre || '', cantidad: q,
-    costoUnidad: porU ? c : c / q, costoTotal: porU ? c * q : c, fecha: new Date() });
-  e.target.reset(); $('cHint').innerText = ''; loadCompras();
+  const q = Number($('cQty').value), c = Number($('cCost').value), porU = $('cModo').value === 'unidad';
+  const s = sups.find(x => x.id === $('cSup').value);
+  await addDoc(col("compras"), { productoId: p.id, producto: p.name, proveedorId: s ? s.id : '', proveedor: s ? s.nombre : '',
+    cantidad: q, costoUnidad: porU ? c : c / q, costoTotal: porU ? c * q : c, fecha: new Date($('cFecha').value + 'T12:00:00') });
+  e.target.reset(); $('cFecha').value = dayKey(); await Promise.all([loadCompras(), loadSales()]);
 });
-
 $('createUserForm').addEventListener('submit', async e => {
   e.preventDefault();
   const nombre = $('newUsername').value.trim(), pin = $('newUserPass').value, email = slug(nombre) + DOM;
   if (!slug(nombre) || !/^\d{4}$/.test(pin)) return alert('Escribe un nombre válido y un código de 4 dígitos.');
   try {
     const cred = await createUserWithEmailAndPassword(auth2, email, toPass(pin));
-    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'vendedor' });
+    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'vendedor', activo: true });
     await signOut(auth2);
     alert(`Vendedor creado. Usuario: ${nombre} · Código: ${pin}`);
     e.target.reset(); loadUsers();
@@ -306,32 +365,73 @@ $('createUserForm').addEventListener('submit', async e => {
 });
 
 // ---------- VENDEDOR ----------
+let cart = {}, editId = null, selCat = '', mine = [];
+const sView = v => ['Home', 'New', 'Done'].forEach(x => show('s' + x, x.toLowerCase() === v));
+
 async function loadSeller() {
-  prods = (await getDocs(col("products"))).docs.map(d => ({ id: d.id, ...d.data() }));
-  $('sProd').innerHTML = '<option value="">Producto…</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)} - ${money(p.price)}</option>`).join('');
-  loadMine();
+  [prods, cats] = await Promise.all([rows("products"), rows("categorias")]);
+  backHome();
 }
-const calc = () => { const p = prods.find(x => x.id === $('sProd').value); $('sTotal').value = p && $('sQty').value ? money(p.price * $('sQty').value) : ''; };
-$('sProd').addEventListener('change', calc); $('sQty').addEventListener('input', calc);
-
-$('saleForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const p = prods.find(x => x.id === $('sProd').value), q = parseInt($('sQty').value, 10);
-  if (!p || !q || q < 1) return;
-  try {
-    await addDoc(col("ventas"), { vendedorId: me.uid, vendedorNombre: me.nombre || me.email, vendedorEmail: me.email,
-      productoId: p.id, productosDetalles: [p.name], cantidad: q, precio: p.price, totalGanancia: p.price * q, fecha: new Date() });
-    e.target.reset(); $('sTotal').value = ''; loadMine();
-  } catch (err) { alert("No se pudo registrar: " + err.message); }
-});
 async function loadMine() {
-  const snap = await getDocs(query(col("ventas"), where("vendedorId", "==", me.uid), where("fecha", ">=", startOf('dia'))));
-  const l = snap.docs.map(d => d.data()).sort((a, b) => b.fecha.seconds - a.fecha.seconds);
-  $('myTotal').innerText = money(l.reduce((a, v) => a + v.totalGanancia, 0));
-  $('mySales').innerHTML = l.map(v => `<li class="list-group-item d-flex justify-content-between"><span>${esc(v.productosDetalles[0])} x${v.cantidad}</span><b>${money(v.totalGanancia)}</b></li>`).join('');
+  const snap = await getDocs(query(col("ventas"), where("vendedorId", "==", me.uid), where("dia", "==", dayKey())));
+  mine = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.fecha.seconds - a.fecha.seconds);
+  $('myTotal').innerText = money(sum(mine, 'totalGanancia'));
+  $('mySales').innerHTML = mine.map(v => `<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>${esc((v.productosDetalles || []).join(', '))}</span>
+    <span class="text-nowrap"><b>${money(v.totalGanancia)}</b> <button class="btn btn-sm btn-outline-primary ms-1" onclick="editSale('${v.id}')">Editar</button></span></li>`).join('')
+    || '<li class="list-group-item text-muted">Aún no hay ventas hoy</li>';
 }
+window.backHome = () => { sView('home'); loadMine(); };
+window.cancelSale = () => backHome();
+window.startSale = old => {
+  cart = {}; editId = old ? old.id : null;
+  (old ? old.items || [] : []).forEach(i => cart[i.id] = { nombre: i.nombre, precio: i.precio, cantidad: i.cantidad });
+  $('sTitle').innerText = old ? 'Editar venta' : 'Nueva venta';
+  selCat = groups()[0]?.id || ''; sView('new'); renderNew();
+};
+window.editSale = id => startSale(mine.find(v => v.id === id));
 
-// ---------- PWA: botón instalar ----------
+const groups = () => [...cats, ...(prods.some(p => !p.categoriaId) ? [{ id: '_', nombre: 'Otros' }] : [])];
+window.pickCat = id => { selCat = id; renderNew(); };
+window.chg = (id, d) => {
+  const b = prods.find(x => x.id === id);
+  if (!cart[id]) { if (!b) return; cart[id] = { nombre: b.name, precio: b.price, cantidad: 0 }; }
+  cart[id].cantidad += d; if (cart[id].cantidad <= 0) delete cart[id];
+  renderNew();
+};
+function renderNew() {
+  $('catBar').innerHTML = groups().map(g => `<button class="btn ${g.id === selCat ? 'btn-primary' : 'btn-outline-primary'}" onclick="pickCat('${g.id}')">${esc(g.nombre)}</button>`).join('')
+    || '<span class="text-muted">El administrador aún no creó categorías.</span>';
+  $('prodGrid').innerHTML = prods.filter(p => selCat === '_' ? !p.categoriaId : p.categoriaId === selCat).map(p => `
+    <div class="col-6 col-md-4"><div class="pcard bg-white p-2 text-center">
+      <div class="fw-semibold">${esc(p.name)}</div><div class="text-muted small mb-2">${money(p.price)}</div>
+      <div class="d-flex justify-content-center align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="chg('${p.id}',-1)">−</button>
+        <b>${cart[p.id]?.cantidad || 0}</b>
+        <button class="btn btn-sm btn-primary" onclick="chg('${p.id}',1)">＋</button></div></div></div>`).join('');
+  const items = Object.entries(cart);
+  $('cartList').innerHTML = items.map(([id, i]) => `<li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <span>${esc(i.nombre)} x${i.cantidad}</span>
+    <span class="text-nowrap">${money(i.precio * i.cantidad)}
+      <button class="btn btn-sm btn-outline-secondary" onclick="chg('${id}',-1)">−</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="chg('${id}',1)">＋</button></span></li>`).join('')
+    || '<li class="list-group-item text-muted px-0">Agrega productos con ＋</li>';
+  $('cartTotal').innerText = money(items.reduce((a, [, i]) => a + i.precio * i.cantidad, 0));
+  $('finBtn').disabled = !items.length;
+}
+window.finishSale = async () => {
+  const items = Object.entries(cart).map(([id, i]) => ({ id, ...i }));
+  if (!items.length) return;
+  const total = items.reduce((a, i) => a + i.precio * i.cantidad, 0);
+  const data = { items, productosDetalles: items.map(i => `${i.nombre} x${i.cantidad}`), cantidad: sum(items, 'cantidad'), totalGanancia: total };
+  try {
+    if (editId) await updateDoc(doc(db, "ventas", editId), data);
+    else await addDoc(col("ventas"), { ...data, vendedorId: me.uid, vendedorNombre: me.nombre || me.email, vendedorEmail: me.email, fecha: new Date(), dia: dayKey() });
+    $('doneTotal').innerText = money(total); sView('done');
+  } catch (err) { alert("No se pudo guardar: " + err.message); }
+};
+
+// ---------- PWA ----------
 let deferred = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; show('installBtn', true); });
 $('installBtn').addEventListener('click', async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; show('installBtn', false); });
