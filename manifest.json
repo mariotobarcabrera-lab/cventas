@@ -1,7 +1,7 @@
 {
-  "name": "Control de Ventas - Lumeozone",
-  "short_name": "ControlVentas",
-  "description": "Gestiona tus ventas y cuentas directamente desde tu teléfono.",
+  "name": "Control de ventas",
+  "short_name": "Ventas",
+  "description": "Gestiona tus ventas desde tu teléfono.",
   "id": "/cventas/",
   "start_url": "/cventas/",
   "scope": "/cventas/",
@@ -9,7 +9,7 @@
   "background_color": "#ffffff",
   "theme_color": "#0d6efd",
   "icons": [
-    { "src": "/lumeozone-icon.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/lumeozone-icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }
