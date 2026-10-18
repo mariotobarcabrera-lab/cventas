@@ -1,350 +1,342 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumeozone - Gestión Comercial</title>
-    <link rel="manifest" href="/manifest.json">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; }
-        .card-product { transition: transform 0.2s; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .card-product:hover { transform: translateY(-5px); }
-        .hidden { display: none !important; }
-        #app { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        .navbar { padding: 10px 16px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d6efd">
+<title>Lumeozone - Gestión Comercial</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
+#app{max-width:1000px;margin:0 auto;padding:12px}
+.hidden{display:none!important}
+.kpi{border-radius:10px;color:#fff;padding:14px}
+.kpi b{font-size:1.4rem;display:block}
+.nav-pills{flex-wrap:nowrap;overflow-x:auto}
+.nav-pills .nav-link{white-space:nowrap}
+</style>
 </head>
 <body>
-
 <div id="app">
 
-    <!-- LOGIN -->
-    <div id="login-section">
-        <div class="card shadow p-4 mb-3 rounded">
-            <h3 class="text-center mb-4 text-primary">Bienvenido a Lumeozone</h3>
-            <form id="loginForm">
-                <div class="mb-3">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="email" class="form-control" required placeholder="correo@ejemplo.com">
-                </div>
-                <div class="mb-3">
-                    <label>Contraseña</label>
-                    <input type="password" id="password" class="form-control" required placeholder="******">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-            </form>
-        </div>
-        <div id="login-error" class="alert alert-danger d-none"></div>
+<div id="login-section" class="mt-4">
+  <div class="card shadow p-4 mb-3">
+    <h3 class="text-center mb-4 text-primary">Lumeozone</h3>
+    <form id="loginForm">
+      <div class="mb-3"><label>Usuario o correo</label>
+        <input id="email" class="form-control" required autocapitalize="none" placeholder="Nombre de vendedor o correo admin"></div>
+      <div class="mb-3"><label>Contraseña / Código</label>
+        <input type="password" id="password" class="form-control" required placeholder="Código de 4 dígitos o contraseña"></div>
+      <button class="btn btn-primary w-100">Ingresar</button>
+    </form>
+  </div>
+  <div id="login-error" class="alert alert-danger d-none"></div>
+</div>
+
+<div id="dashboard-section" class="hidden">
+  <nav class="navbar navbar-dark bg-dark mb-3 rounded px-3 gap-2">
+    <span class="navbar-brand mb-0">Lumeozone</span>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="text-light small" id="user-display"></span>
+      <button id="installBtn" class="btn btn-warning btn-sm hidden">📲 Instalar app</button>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">Salir</button>
     </div>
+  </nav>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard-section" class="hidden">
-        <nav class="navbar navbar-dark bg-dark mb-4 rounded d-flex justify-content-between">
-            <a class="navbar-brand" href="#">Lumeozone</a>
-            <div>
-                <span class="text-light me-3" id="user-display"></span>
-                <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar Sesión</button>
-            </div>
-        </nav>
+  <div id="admin-dashboard" class="hidden">
+    <ul class="nav nav-pills mb-3">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#t-res">Resumen</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-prod">Productos</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-prov">Proveedores</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-comp">Compras</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-vend">Vendedores</button></li>
+    </ul>
+    <div class="tab-content">
 
-        <!-- ADMIN -->
-        <div id="admin-dashboard" class="hidden">
-            <h4 class="mb-3 text-primary">Panel de Administrador 🛠️</h4>
-
-            <div class="card p-3 mb-4 bg-light border-0">
-                <h5>Nuevo Vendedor</h5>
-                <form id="createUserForm" class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" id="newUsername" placeholder="Nombre del vendedor" required>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="email" class="form-control" id="newUserEmail" placeholder="Correo" required>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="password" class="form-control" id="newUserPass" placeholder="Contraseña (mín. 6)" minlength="6" required>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success">Crear Vendedor</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="card p-3 mb-4 bg-white shadow-sm">
-                <h5>Usuarios</h5>
-                <ul id="userList" class="list-group"></ul>
-            </div>
-
-            <div class="card p-3 mb-4 bg-white shadow-sm">
-                <h5>Últimas ventas</h5>
-                <ul id="salesList" class="list-group"></ul>
-            </div>
+      <div class="tab-pane fade show active" id="t-res">
+        <div class="row g-2 mb-3">
+          <div class="col-6 col-md-3"><div class="kpi bg-primary">Hoy<b id="kHoy">$0</b><small id="kHoyN"></small></div></div>
+          <div class="col-6 col-md-3"><div class="kpi bg-success">Esta semana<b id="kSem">$0</b><small id="kSemN"></small></div></div>
+          <div class="col-6 col-md-3"><div class="kpi bg-dark">Este mes<b id="kMes">$0</b><small id="kMesN"></small></div></div>
+          <div class="col-6 col-md-3"><div class="kpi bg-secondary">Periodo visto<b id="kRango">$0</b><small id="kRangoN"></small></div></div>
         </div>
-
-        <!-- VENDEDOR -->
-        <div id="seller-dashboard" class="hidden">
-            <h4 class="mb-3 text-success">Panel de Vendedores 🛒</h4>
-
-            <div class="card p-3 mb-4 bg-white shadow-sm">
-                <h5>Catálogo de Ventas</h5>
-                <div id="product-list" class="row g-2"></div>
-            </div>
-
-            <div class="card p-3 mb-4 bg-light border-0">
-                <h5>Registrar venta rápida</h5>
-                <form id="addProductForm" onsubmit="event.preventDefault(); addQuickSale()">
-                    <div class="mb-2">
-                        <input type="text" id="qProdName" class="form-control" placeholder="Nombre del producto" required>
-                    </div>
-                    <div class="mb-2">
-                        <input type="number" id="qProdQty" class="form-control" placeholder="Cantidad a vender" min="1" required>
-                    </div>
-                    <button class="btn btn-primary w-100">Registrar Venta</button>
-                </form>
-            </div>
+        <div class="card p-3">
+          <div class="btn-group mb-3" id="rangeBtns">
+            <button class="btn btn-outline-primary active" data-r="dia">Día</button>
+            <button class="btn btn-outline-primary" data-r="semana">Semana</button>
+            <button class="btn btn-outline-primary" data-r="mes">Mes</button>
+          </div>
+          <div class="table-responsive"><table class="table table-sm align-middle">
+            <thead><tr><th>Fecha</th><th>Vendedor</th><th>Producto</th><th>Cant.</th><th class="text-end">Total</th></tr></thead>
+            <tbody id="salesBody"></tbody></table></div>
         </div>
+      </div>
+
+      <div class="tab-pane fade" id="t-prod">
+        <div class="card p-3 mb-3"><h5>Nuevo producto</h5>
+          <form id="prodForm" class="row g-2">
+            <div class="col-12 col-md-4"><input id="pName" class="form-control" placeholder="Nombre" required></div>
+            <div class="col-6 col-md-2"><input id="pPrice" type="number" min="0" step="any" class="form-control" placeholder="Precio venta" required></div>
+            <div class="col-6 col-md-3"><select id="pSup" class="form-select"></select></div>
+            <div class="col-12 col-md-3"><select id="pMode" class="form-select">
+              <option value="unidad">Compra: costo por unidad</option><option value="total">Compra: costo total</option></select></div>
+            <div class="col-12"><button class="btn btn-success">Guardar producto</button></div>
+          </form></div>
+        <div class="card p-3"><div class="table-responsive"><table class="table table-sm align-middle">
+          <thead><tr><th>Producto</th><th>Precio</th><th>Proveedor</th><th>Costo</th><th></th></tr></thead>
+          <tbody id="prodBody"></tbody></table></div></div>
+      </div>
+
+      <div class="tab-pane fade" id="t-prov">
+        <div class="card p-3 mb-3"><h5>Nuevo proveedor</h5>
+          <form id="supForm" class="row g-2">
+            <div class="col-12 col-md-5"><input id="sName" class="form-control" placeholder="Nombre" required></div>
+            <div class="col-12 col-md-4"><input id="sTel" class="form-control" placeholder="Teléfono"></div>
+            <div class="col-12 col-md-3"><button class="btn btn-success w-100">Agregar</button></div>
+          </form></div>
+        <ul id="supList" class="list-group"></ul>
+      </div>
+
+      <div class="tab-pane fade" id="t-comp">
+        <div class="card p-3 mb-3"><h5>Registrar compra a proveedor</h5>
+          <form id="compForm" class="row g-2">
+            <div class="col-12 col-md-5"><select id="cProd" class="form-select" required></select></div>
+            <div class="col-6 col-md-3"><input id="cQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
+            <div class="col-6 col-md-4"><input id="cCost" type="number" min="0" step="any" class="form-control" placeholder="Costo" required></div>
+            <div class="col-12"><small class="text-muted" id="cHint"></small></div>
+            <div class="col-12"><button class="btn btn-success">Guardar compra</button></div>
+          </form></div>
+        <div class="card p-3"><div class="table-responsive"><table class="table table-sm">
+          <thead><tr><th>Fecha</th><th>Producto</th><th>Proveedor</th><th>Cant.</th><th>C/U</th><th class="text-end">Total</th></tr></thead>
+          <tbody id="compBody"></tbody></table></div></div>
+      </div>
+
+      <div class="tab-pane fade" id="t-vend">
+        <div class="card p-3 mb-3"><h5>Nuevo vendedor</h5>
+          <form id="createUserForm" class="row g-2">
+            <div class="col-12 col-md-6"><input id="newUsername" class="form-control" placeholder="Nombre (será su usuario)" required></div>
+            <div class="col-6 col-md-3"><input id="newUserPass" class="form-control" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Código 4 dígitos" required></div>
+            <div class="col-6 col-md-3"><button class="btn btn-success w-100">Crear</button></div>
+          </form></div>
+        <ul id="userList" class="list-group"></ul>
+      </div>
     </div>
+  </div>
+
+  <div id="seller-dashboard" class="hidden">
+    <h4 class="text-success mb-3">Registrar venta 🛒</h4>
+    <div class="card p-3 mb-3">
+      <form id="saleForm" class="row g-2">
+        <div class="col-12"><select id="sProd" class="form-select" required></select></div>
+        <div class="col-6"><input id="sQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
+        <div class="col-6"><input id="sTotal" class="form-control" disabled placeholder="Total"></div>
+        <div class="col-12"><button class="btn btn-primary w-100">Registrar venta</button></div>
+      </form>
+    </div>
+    <div class="card p-3"><h5>Mis ventas de hoy: <span id="myTotal">$0</span></h5>
+      <ul id="mySales" class="list-group list-group-flush"></ul></div>
+  </div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, query, orderBy, limit, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ⚠️ PEGA AQUÍ TU CONFIGURACIÓN REAL DE FIREBASE 👇
-    const firebaseConfig = {
-        apiKey: "AIzaSyAldbC3MFpbIZqiCs3TLX6dnMOAzDWS19o",
-        authDomain: "siteg-691cd.firebaseapp.com",
-        projectId: "siteg-691cd",
-        storageBucket: "siteg-691cd.firebasestorage.app",
-        messagingSenderId: "953137572437",
-        appId: "1:953137572437:web:cc163afa907309005042dc"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyAldbC3MFpbIZqiCs3TLX6dnMOAzDWS19o",
+  authDomain: "siteg-691cd.firebaseapp.com",
+  projectId: "siteg-691cd",
+  storageBucket: "siteg-691cd.firebasestorage.app",
+  messagingSenderId: "953137572437",
+  appId: "1:953137572437:web:cc163afa907309005042dc"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app), db = getFirestore(app);
+const auth2 = getAuth(initializeApp(firebaseConfig, "secundaria")); // crea vendedores sin cerrar la sesión del admin
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$' + Number(n || 0).toLocaleString('es-CO');
+const slug = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const DOM = '@vendedor.lumeozone.app';
+const toEmail = u => u.includes('@') ? u.trim() : slug(u) + DOM;
+const toPass = p => /^\d{4}$/.test(p) ? 'lz' + p + 'ok' : p; // Firebase exige 6+ caracteres
+const col = n => collection(db, n);
+const fmt = d => d.toLocaleString('es-CO', {dateStyle: 'short', timeStyle: 'short'});
+const show = (id, v) => $(id).classList.toggle('hidden', !v);
 
-    // App secundaria: permite al admin crear vendedores sin cerrar su propia sesión
-    const secondaryApp = initializeApp(firebaseConfig, "secundaria");
-    const secondaryAuth = getAuth(secondaryApp);
+let me = null, prods = [], sups = [], sales = [], range = 'dia';
 
-    let currentUser = null;
-    let productsDb = [];
+const startOf = r => {
+  const n = new Date(), d = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  if (r === 'dia') return d;
+  if (r === 'semana') { d.setDate(d.getDate() - (n.getDay() + 6) % 7); return d; }
+  return new Date(n.getFullYear(), n.getMonth(), 1);
+};
 
-    const $ = (id) => document.getElementById(id);
-    const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const money = (n) => Number(n || 0).toLocaleString('es-CO');
+// ---------- login ----------
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const box = $('login-error'); box.classList.add('d-none');
+  try { await signInWithEmailAndPassword(auth, toEmail($('email').value), toPass($('password').value)); }
+  catch (err) { box.innerText = "Usuario o código incorrecto."; box.classList.remove('d-none'); }
+});
+window.logout = () => signOut(auth);
 
-    // ---------- LOGIN ----------
-    $('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const errorBox = $('login-error');
-        errorBox.classList.add('d-none');
-        try {
-            await signInWithEmailAndPassword(auth, $('email').value.trim(), $('password').value);
-            // onAuthStateChanged se encarga de mostrar el dashboard
-        } catch (error) {
-            errorBox.innerText = "Error: " + error.message;
-            errorBox.classList.remove('d-none');
-        }
-    });
+onAuthStateChanged(auth, async user => {
+  if (!user) { me = null; show('login-section', true); show('dashboard-section', false); return; }
+  const box = $('login-error');
+  try {
+    const s = await getDoc(doc(db, "usuarios", user.uid));
+    if (!s.exists()) { box.innerText = "Usuario no registrado. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
+    me = { uid: user.uid, email: user.email, ...s.data() };
+    show('login-section', false); show('dashboard-section', true);
+    $('user-display').innerText = `${me.nombre || me.email} (${me.role === 'admin' ? 'Admin' : 'Vendedor'})`;
+    show('admin-dashboard', me.role === 'admin'); show('seller-dashboard', me.role !== 'admin');
+    me.role === 'admin' ? await loadAdmin() : await loadSeller();
+  } catch (err) { box.innerText = "Error: " + err.message; box.classList.remove('d-none'); signOut(auth); }
+});
 
-    function logout() { signOut(auth); }
-    window.logout = logout;
-    window.addQuickSale = addQuickSale;
+// ---------- ADMIN ----------
+async function loadAdmin() { await loadSups(); await loadProds(); await Promise.all([loadUsers(), loadCompras(), loadSales()]); }
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            await showDashboard();
-        } else {
-            currentUser = null;
-            $('login-section').classList.remove('hidden');
-            $('dashboard-section').classList.add('hidden');
-            $('admin-dashboard').classList.add('hidden');
-            $('seller-dashboard').classList.add('hidden');
-        }
-    });
+async function loadSups() {
+  sups = (await getDocs(col("proveedores"))).docs.map(d => ({ id: d.id, ...d.data() }));
+  $('supList').innerHTML = sups.map(s => `<li class="list-group-item d-flex justify-content-between">
+    <span>${esc(s.nombre)} <small class="text-muted">${esc(s.telefono || '')}</small></span>
+    <button class="btn btn-sm btn-outline-danger" onclick="delDoc('proveedores','${s.id}')">Borrar</button></li>`).join('')
+    || '<li class="list-group-item text-muted">Sin proveedores</li>';
+  $('pSup').innerHTML = '<option value="">Sin proveedor</option>' + sups.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+}
 
-    async function showDashboard() {
-        const errorBox = $('login-error');
-        try {
-            const snapshot = await getDoc(doc(db, "usuarios", currentUser.uid));
+async function loadProds() {
+  prods = (await getDocs(col("products"))).docs.map(d => ({ id: d.id, ...d.data() }));
+  const supName = id => (sups.find(s => s.id === id) || {}).nombre || '—';
+  $('prodBody').innerHTML = prods.map(p => `<tr><td>${esc(p.name)}</td><td>${money(p.price)}</td>
+    <td>${esc(supName(p.proveedorId))}</td><td>por ${esc(p.costoModo || 'unidad')}</td>
+    <td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="editPrice('${p.id}')">Precio</button>
+    <button class="btn btn-sm btn-outline-danger" onclick="delDoc('products','${p.id}')">X</button></td></tr>`).join('')
+    || '<tr><td colspan="5" class="text-muted">Sin productos</td></tr>';
+  $('cProd').innerHTML = '<option value="">Producto…</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+}
 
-            if (!snapshot.exists()) {
-                errorBox.innerText = "Tu usuario no está registrado en el sistema. Contacta al administrador.";
-                errorBox.classList.remove('d-none');
-                await signOut(auth);
-                return;
-            }
+async function loadUsers() {
+  const snap = await getDocs(col("usuarios"));
+  $('userList').innerHTML = snap.docs.map(d => d.data()).map(u => `<li class="list-group-item d-flex justify-content-between">
+    <span>${esc(u.nombre || u.email)}</span><span class="badge ${u.role === 'admin' ? 'bg-primary' : 'bg-success'}">${esc(u.role || '')}</span></li>`).join('');
+}
 
-            const data = snapshot.data();
-            currentUser.role = data.role || 'vendedor';
-            currentUser.ganancias = data.gananciasAcumuladas || 0;
+async function loadCompras() {
+  const snap = await getDocs(query(col("compras"), orderBy("fecha", "desc"), limit(20)));
+  $('compBody').innerHTML = snap.docs.map(d => d.data()).map(c => `<tr><td>${fmt(c.fecha.toDate())}</td><td>${esc(c.producto)}</td>
+    <td>${esc(c.proveedor || '—')}</td><td>${c.cantidad}</td><td>${money(c.costoUnidad)}</td><td class="text-end">${money(c.costoTotal)}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="text-muted">Sin compras</td></tr>';
+}
 
-            $('login-section').classList.add('hidden');
-            $('dashboard-section').classList.remove('hidden');
-            $('admin-dashboard').classList.add('hidden');
-            $('seller-dashboard').classList.add('hidden');
+async function loadSales() {
+  const from = new Date(Math.min(startOf('mes'), startOf('semana')));
+  const snap = await getDocs(query(col("ventas"), where("fecha", ">=", from), orderBy("fecha", "desc")));
+  sales = snap.docs.map(d => { const v = d.data(); return { ...v, f: v.fecha.toDate() }; });
+  const sum = r => { const l = sales.filter(v => v.f >= startOf(r)); return [l.reduce((a, v) => a + v.totalGanancia, 0), l.length]; };
+  [['Hoy', 'dia'], ['Sem', 'semana'], ['Mes', 'mes']].forEach(([k, r]) => {
+    const [t, n] = sum(r); $('k' + k).innerText = money(t); $('k' + k + 'N').innerText = n + ' ventas';
+  });
+  renderSales();
+}
+function renderSales() {
+  const l = sales.filter(v => v.f >= startOf(range));
+  $('salesBody').innerHTML = l.map(v => `<tr><td>${fmt(v.f)}</td><td>${esc(v.vendedorNombre || v.vendedorEmail)}</td>
+    <td>${esc((v.productosDetalles || []).join(', '))}</td><td>${v.cantidad || ''}</td><td class="text-end">${money(v.totalGanancia)}</td></tr>`).join('')
+    || '<tr><td colspan="5" class="text-muted">Sin ventas en este periodo</td></tr>';
+  $('kRango').innerText = money(l.reduce((a, v) => a + v.totalGanancia, 0)); $('kRangoN').innerText = l.length + ' ventas';
+}
+$('rangeBtns').addEventListener('click', e => {
+  const r = e.target.dataset.r; if (!r) return;
+  range = r; [...$('rangeBtns').children].forEach(b => b.classList.toggle('active', b === e.target)); renderSales();
+});
 
-            $('user-display').innerText =
-                `Hola, ${currentUser.email.split('@')[0]} (${currentUser.role === 'admin' ? 'Admin' : 'Vendedor'})`;
+window.delDoc = async (c, id) => { if (!confirm('¿Borrar?')) return; await deleteDoc(doc(db, c, id)); loadAdmin(); };
+window.editPrice = async id => {
+  const v = prompt('Nuevo precio de venta:'); if (v === null || v === '' || isNaN(v)) return;
+  await updateDoc(doc(db, "products", id), { price: Number(v) }); loadProds();
+};
 
-            if (currentUser.role === 'admin') {
-                $('admin-dashboard').classList.remove('hidden');
-                await loadUsers();
-                await loadSales();
-            } else {
-                $('seller-dashboard').classList.remove('hidden');
-                await loadProducts();
-            }
-        } catch (err) {
-            console.error(err);
-            errorBox.innerText = "Error al cargar tu perfil: " + err.message;
-            errorBox.classList.remove('d-none');
-            await signOut(auth);
-        }
-    }
+$('supForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  await addDoc(col("proveedores"), { nombre: $('sName').value.trim(), telefono: $('sTel').value.trim() });
+  e.target.reset(); loadSups();
+});
+$('prodForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  await addDoc(col("products"), { name: $('pName').value.trim(), price: Number($('pPrice').value), proveedorId: $('pSup').value, costoModo: $('pMode').value });
+  e.target.reset(); loadProds();
+});
 
-    // ---------- ADMIN ----------
-    $('createUserForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const nombre = $('newUsername').value.trim();
-        const email = $('newUserEmail').value.trim();
-        const pass = $('newUserPass').value;
+// El producto define si la compra pide costo por unidad o total
+$('cProd').addEventListener('change', () => {
+  const p = prods.find(x => x.id === $('cProd').value), m = p ? (p.costoModo || 'unidad') : '';
+  $('cCost').placeholder = m ? `Costo ${m === 'unidad' ? 'por unidad' : 'total'}` : 'Costo';
+  $('cHint').innerText = m ? `Este producto se registra con costo ${m === 'unidad' ? 'por unidad' : 'total'}.` : '';
+});
+$('compForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const p = prods.find(x => x.id === $('cProd').value); if (!p) return;
+  const q = Number($('cQty').value), c = Number($('cCost').value), porU = (p.costoModo || 'unidad') === 'unidad';
+  await addDoc(col("compras"), { productoId: p.id, producto: p.name, proveedorId: p.proveedorId || '',
+    proveedor: (sups.find(s => s.id === p.proveedorId) || {}).nombre || '', cantidad: q,
+    costoUnidad: porU ? c : c / q, costoTotal: porU ? c * q : c, fecha: new Date() });
+  e.target.reset(); $('cHint').innerText = ''; loadCompras();
+});
 
-        try {
-            const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-            await setDoc(doc(db, "usuarios", cred.user.uid), {
-                uid: cred.user.uid,
-                nombre,
-                email,
-                role: 'vendedor',
-                gananciasAcumuladas: 0
-            });
-            await signOut(secondaryAuth);
-            alert(`Vendedor ${nombre} creado correctamente.`);
-            e.target.reset();
-            await loadUsers();
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
-    });
+$('createUserForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const nombre = $('newUsername').value.trim(), pin = $('newUserPass').value, email = slug(nombre) + DOM;
+  if (!slug(nombre) || !/^\d{4}$/.test(pin)) return alert('Escribe un nombre válido y un código de 4 dígitos.');
+  try {
+    const cred = await createUserWithEmailAndPassword(auth2, email, toPass(pin));
+    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'vendedor' });
+    await signOut(auth2);
+    alert(`Vendedor creado. Usuario: ${nombre} · Código: ${pin}`);
+    e.target.reset(); loadUsers();
+  } catch (err) { alert(err.code === 'auth/email-already-in-use' ? 'Ya existe un vendedor con ese nombre.' : 'Error: ' + err.message); }
+});
 
-    async function loadUsers() {
-        const list = $('userList');
-        try {
-            const snap = await getDocs(collection(db, "usuarios"));
-            let html = '';
-            snap.forEach(d => {
-                const u = d.data();
-                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>${escapeHtml(u.nombre || u.email || d.id)}
-                        <small class="text-muted">${escapeHtml(u.email || '')}</small></span>
-                    <span class="badge ${u.role === 'admin' ? 'bg-primary' : 'bg-success'}">${escapeHtml(u.role || 'sin rol')}</span>
-                </li>`;
-            });
-            list.innerHTML = html || '<li class="list-group-item text-muted">Sin usuarios</li>';
-        } catch (err) {
-            list.innerHTML = `<li class="list-group-item text-danger">Error: ${escapeHtml(err.message)}</li>`;
-        }
-    }
+// ---------- VENDEDOR ----------
+async function loadSeller() {
+  prods = (await getDocs(col("products"))).docs.map(d => ({ id: d.id, ...d.data() }));
+  $('sProd').innerHTML = '<option value="">Producto…</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)} - ${money(p.price)}</option>`).join('');
+  loadMine();
+}
+const calc = () => { const p = prods.find(x => x.id === $('sProd').value); $('sTotal').value = p && $('sQty').value ? money(p.price * $('sQty').value) : ''; };
+$('sProd').addEventListener('change', calc); $('sQty').addEventListener('input', calc);
 
-    async function loadSales() {
-        const list = $('salesList');
-        try {
-            const q = query(collection(db, "ventas"), orderBy("fecha", "desc"), limit(20));
-            const snap = await getDocs(q);
-            let html = '';
-            snap.forEach(d => {
-                const v = d.data();
-                const fecha = v.fecha?.toDate ? v.fecha.toDate().toLocaleString('es-CO') : '';
-                html += `<li class="list-group-item d-flex justify-content-between">
-                    <span>${escapeHtml((v.productosDetalles || []).join(', '))}
-                        <small class="text-muted">· ${escapeHtml(v.vendedorEmail)} · ${escapeHtml(fecha)}</small></span>
-                    <strong>$${money(v.totalGanancia)}</strong>
-                </li>`;
-            });
-            list.innerHTML = html || '<li class="list-group-item text-muted">Aún no hay ventas</li>';
-        } catch (err) {
-            list.innerHTML = `<li class="list-group-item text-danger">Error: ${escapeHtml(err.message)}</li>`;
-        }
-    }
+$('saleForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const p = prods.find(x => x.id === $('sProd').value), q = parseInt($('sQty').value, 10);
+  if (!p || !q || q < 1) return;
+  try {
+    await addDoc(col("ventas"), { vendedorId: me.uid, vendedorNombre: me.nombre || me.email, vendedorEmail: me.email,
+      productoId: p.id, productosDetalles: [p.name], cantidad: q, precio: p.price, totalGanancia: p.price * q, fecha: new Date() });
+    e.target.reset(); $('sTotal').value = ''; loadMine();
+  } catch (err) { alert("No se pudo registrar: " + err.message); }
+});
+async function loadMine() {
+  const snap = await getDocs(query(col("ventas"), where("vendedorId", "==", me.uid), where("fecha", ">=", startOf('dia'))));
+  const l = snap.docs.map(d => d.data()).sort((a, b) => b.fecha.seconds - a.fecha.seconds);
+  $('myTotal').innerText = money(l.reduce((a, v) => a + v.totalGanancia, 0));
+  $('mySales').innerHTML = l.map(v => `<li class="list-group-item d-flex justify-content-between"><span>${esc(v.productosDetalles[0])} x${v.cantidad}</span><b>${money(v.totalGanancia)}</b></li>`).join('');
+}
 
-    // ---------- VENDEDOR ----------
-    async function loadProducts() {
-        const container = $('product-list');
-        productsDb = [];
-        try {
-            const snap = await getDocs(collection(db, "products"));
-            snap.forEach(d => {
-                const p = d.data();
-                productsDb.push({ id: d.id, name: p.name || p.nombre, price: Number(p.price ?? p.precio ?? 0) });
-            });
-        } catch (err) {
-            console.warn("No se pudieron leer productos:", err.message);
-        }
-
-        // Si la colección 'products' está vacía, usa productos de ejemplo
-        if (productsDb.length === 0) {
-            productsDb = [
-                { id: 1, name: 'Café Especial', price: 3500 },
-                { id: 2, name: 'Galletas', price: 2500 },
-                { id: 3, name: 'Tostadas', price: 4500 },
-            ];
-        }
-
-        container.innerHTML = productsDb.map(p => `
-            <div class="col-md-4">
-                <div class="card card-product p-2">
-                    <h6>${escapeHtml(p.name)}</h6>
-                    <p class="text-muted mb-0">Precio: $${money(p.price)}</p>
-                </div>
-            </div>`).join('');
-    }
-
-    function addQuickSale() {
-        const name = $('qProdName').value.trim();
-        const qty = parseInt($('qProdQty').value, 10);
-
-        if (!name || !qty || qty < 1) {
-            alert("Escribe el producto y una cantidad válida.");
-            return;
-        }
-
-        const existing = productsDb.find(p => p.name.toLowerCase() === name.toLowerCase());
-        const price = existing ? existing.price : 3000; // precio estándar si el producto no existe
-        const total = price * qty;
-
-        registrarVenta(name, qty, total);
-
-        $('qProdName').value = '';
-        $('qProdQty').value = '';
-    }
-
-    async function registrarVenta(nombreProd, cantidad, total) {
-        try {
-            await addDoc(collection(db, "ventas"), {
-                vendedorEmail: currentUser.email,
-                vendedorId: currentUser.uid,
-                productosDetalles: [nombreProd],
-                cantidad,
-                totalGanancia: total,
-                fecha: new Date()
-            });
-
-            await updateDoc(doc(db, "usuarios", currentUser.uid), {
-                gananciasAcumuladas: increment(total)
-            });
-
-            alert(`Venta registrada exitosamente por $${money(total)} COP.`);
-        } catch (e) {
-            console.error("Error en la venta", e);
-            alert("No se pudo registrar la venta: " + e.message);
-        }
-    }
+// ---------- PWA: botón instalar ----------
+let deferred = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; show('installBtn', true); });
+$('installBtn').addEventListener('click', async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; show('installBtn', false); });
+window.addEventListener('appinstalled', () => show('installBtn', false));
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>
