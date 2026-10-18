@@ -1,239 +1,507 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lumeozone</title>
-<meta name="description" content="Lumeozone">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/apple-touch-icon.png" sizes="180x180" type="image/png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d6efd">
+<title>Control de ventas</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-:root{--bg:#021424;--panel:rgba(255,255,255,.04);--line:rgba(255,255,255,.16);--teal:#2fc7b8;--red:#ef4a5c;--text:#fff;--muted:#b9c8d4}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Roboto',system-ui,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;letter-spacing:.04em}
-a{color:inherit;text-decoration:none}
-:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:8px}
-
-.top{position:relative;min-height:0;overflow:hidden;
-  background:radial-gradient(ellipse 60% 55% at 22% 38%,#06365a 0%,rgba(6,54,90,0) 70%),var(--bg)}
-.waves{position:absolute;inset:0;width:100%;height:100%}
-.waves g{animation:drift 14s ease-in-out infinite alternate;transform-origin:60% 50%}
-@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(-18px,12px) scale(1.03)}}
-
-nav{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1240px;margin:0 auto;padding:32px 40px}
-.logo{display:flex;align-items:center;gap:14px;font-weight:700;font-size:1.05rem}
-.bars{display:grid;gap:7px}
-.bars i{display:block;height:2px;background:#fff}
-.bars i:nth-child(1){width:44px}.bars i:nth-child(2){width:30px}.bars i:nth-child(3){width:20px}
-.links{display:flex;align-items:center;gap:clamp(14px,3vw,44px);list-style:none}
-.links a{font-size:1rem;transition:color .2s}
-.links a:hover{color:var(--teal)}
-.pill{border:2px solid #fff;border-radius:999px;padding:6px 26px}
-.pill:hover{border-color:var(--teal)}
-.lang{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 12px;font:inherit;font-size:.82rem;cursor:pointer}
-.lang:hover{color:var(--teal);border-color:var(--teal)}
-
-.hero{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:10vh 40px 9vh}
-h1{font-size:clamp(2.6rem,7vw,4.6rem);font-weight:300;line-height:1.1;letter-spacing:.07em}
-h1 b{font-weight:700;color:var(--teal)}
-.sub{margin-top:8px;font-size:clamp(1rem,2vw,1.35rem);letter-spacing:.3em}
-.desc{margin-top:44px;max-width:37em;color:var(--text);font-size:.98rem}
-.btn{display:inline-block;margin-top:44px;padding:10px 32px;border-radius:999px;background:var(--teal);color:#fff;font-weight:700;letter-spacing:.2em;box-shadow:0 8px 18px rgba(0,0,0,.35);transition:transform .2s,filter .2s}
-.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
-
-section{position:relative;padding:72px 40px;background:var(--bg)}
-.in{max-width:1000px;margin:0 auto}
-h2{font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:300;letter-spacing:.1em;margin-bottom:14px}
-h2::after{content:"";display:block;width:56px;height:3px;background:linear-gradient(90deg,var(--teal),var(--red));margin-top:14px;border-radius:2px}
-.lead{color:var(--muted);max-width:36em;margin:18px 0 38px}
-
-.apps{display:grid;gap:20px}
-.app{display:flex;align-items:center;gap:24px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px;max-width:660px;transition:border-color .2s}
-.app:hover{border-color:var(--teal)}
-.icon{flex:0 0 64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--teal),#0b6f8a);display:grid;place-items:center;font-size:1.9rem}
-.info{flex:1 1 220px}
-.info h3{font-weight:700;font-size:1.15rem;letter-spacing:.05em}
-.info p{color:var(--muted);font-size:.94rem;margin-top:4px}
-.app .btn{margin:0;letter-spacing:.1em}
-
-.about{display:grid;grid-template-columns:1.2fr 1fr;gap:56px}
-.about p{color:var(--muted);margin-bottom:16px}
-.vals{list-style:none;display:grid;gap:14px}
-.vals li{background:var(--panel);border-left:3px solid var(--teal);border-radius:0 14px 14px 0;padding:16px 20px}
-.vals strong{display:block}
-.vals span{color:var(--muted);font-size:.92rem}
-
-.mail{display:inline-block;margin-top:6px;font-size:1.25rem;color:var(--teal);border-bottom:1px solid var(--teal)}
-footer{padding:28px 40px;color:var(--muted);font-size:.85rem;text-align:center;border-top:1px solid var(--line)}
-
-@media (max-width:760px){
-  nav{padding:22px 20px;flex-wrap:wrap}
-  .hero{padding:6vh 20px 7vh}
-  section{padding:56px 20px}
-  .about{grid-template-columns:1fr;gap:32px}
-  .links .hide-s{display:none}
-}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.waves g{animation:none}.btn{transition:none}}
+body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
+#app{max-width:1000px;margin:0 auto;padding:12px}
+.hidden{display:none!important}
+.kpi{border-radius:10px;color:#fff;padding:12px}
+.kpi b{font-size:1.25rem;display:block}
+.nav-pills,.cats{flex-wrap:nowrap;overflow-x:auto;gap:6px}
+.nav-pills .nav-link,.cats .btn{white-space:nowrap}
+.pcard{border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 </style>
 </head>
 <body>
+<div id="app">
 
-<div class="top" id="inicio">
-  <svg class="waves" viewBox="0 0 1200 700" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
-    <defs>
-      <linearGradient id="gr" gradientUnits="userSpaceOnUse" x1="250" y1="0" x2="1200" y2="700">
-        <stop offset="0" stop-color="#ef4a5c"/><stop offset=".3" stop-color="#2fc7b8"/>
-        <stop offset=".7" stop-color="#2fc7b8" stop-opacity=".7"/><stop offset="1" stop-color="#ef4a5c"/>
-      </linearGradient>
-    </defs>
-    <g id="lines" fill="none" stroke="url(#gr)" stroke-width=".8" stroke-opacity=".6"></g>
-  </svg>
-
-  <nav aria-label="Menu">
-    <a class="logo" href="#inicio"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span>Lumeozone</span></a>
-    <ul class="links">
-      <li class="hide-s"><a href="#inicio" data-i="nav_home"></a></li>
-      <li><a href="#apps" data-i="nav_apps"></a></li>
-      <li class="hide-s"><a href="#nosotros" data-i="nav_about"></a></li>
-      <li><a class="pill" href="#contacto" data-i="nav_contact"></a></li>
-      <li><button class="lang" id="lang" type="button" aria-label="Language"></button></li>
-    </ul>
-  </nav>
-
-  <div class="hero">
-    <h1><b>Lumeo</b>zone</h1>
-    <p class="sub" data-i="sub"></p>
-    <p class="desc" data-i="desc"></p>
-    <a class="btn" href="#apps" data-i="cta"></a>
+<div id="login-section" class="mt-4">
+  <div class="card shadow p-4 mb-3">
+    <h3 class="text-center mb-4 text-primary">Control de ventas</h3>
+    <form id="loginForm">
+      <div class="mb-3"><label>Usuario o correo</label>
+        <input id="email" class="form-control" required autocapitalize="none" placeholder="Nombre de vendedor o correo admin"></div>
+      <div class="mb-3"><label>Código del negocio <small class="text-muted">(solo vendedores)</small></label>
+        <input id="negocio" class="form-control" autocapitalize="none" placeholder="Ej: maria"></div>
+      <div class="mb-3"><label>Contraseña / Código</label>
+        <input type="password" id="password" class="form-control" required placeholder="Código de 4 dígitos o contraseña"></div>
+      <button class="btn btn-primary w-100">Ingresar</button>
+    </form>
   </div>
+  <div id="login-error" class="alert alert-danger d-none"></div>
 </div>
 
-<section id="apps">
-  <div class="in">
-    <h2 data-i="apps_t"></h2>
-    <p class="lead" data-i="apps_l"></p>
-    <div class="apps">
-
-      <!-- APP 1: Control de gastos (repositorio "gastos") -->
-      <article class="app">
-        <div class="icon" aria-hidden="true">💰</div>
-        <div class="info"><h3 data-i="app_n"></h3><p data-i="app_d"></p></div>
-        <a class="btn" href="/gastos/" data-i="app_b"></a>
-      </article>
-
-<!-- APP: Control de Ventas (repositorio "cventas") -->
-      <article class="app">
-        <div class="icon" aria-hidden="true">🛒</div>
-        <div class="info"><h3 data-i="app2_n"></h3><p data-i="app2_d"></p></div>
-        <a class="btn" href="/cventas/" data-i="app_b"></a>
-      </article>
-
-      <!-- ===== AQUÍ AGREGAS LAS APPS NUEVAS =====
-           Copia un bloque <article class="app">...</article> completo,
-           pégalo justo debajo de este comentario y cambia el emoji,
-           el nombre, la descripción y el enlace (por ejemplo /tareas/).
-           Ejemplo:
-
-      <article class="app">
-        <div class="icon" aria-hidden="true">✅</div>
-        <div class="info"><h3>Lista de tareas</h3><p>Organiza tu día en un solo lugar.</p></div>
-        <a class="btn" href="/tareas/">Abrir app</a>
-      </article>
-      ===== -->
-
+<div id="dashboard-section" class="hidden">
+  <nav class="navbar navbar-dark bg-dark mb-3 rounded px-3 gap-2">
+    <span class="navbar-brand mb-0">Control de ventas</span>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="text-light small" id="user-display"></span>
+      <button id="installBtn" class="btn btn-warning btn-sm hidden">📲 Instalar app</button>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">Salir</button>
     </div>
+  </nav>
+
+  <!-- SUPER ADMIN -->
+  <div id="super-dashboard" class="hidden">
+    <div class="card p-3 mb-3"><h5>Nuevo negocio</h5>
+      <form id="negForm" class="row g-2">
+        <div class="col-12 col-md-5"><input id="nNom" class="form-control" placeholder="Nombre (Ej: Comedor María)" required></div>
+        <div class="col-6 col-md-4"><input id="nCod" class="form-control" placeholder="Código corto (Ej: maria)" required></div>
+        <div class="col-6 col-md-3"><button class="btn btn-success w-100">Crear negocio</button></div>
+      </form></div>
+    <ul id="negList" class="list-group mb-3"></ul>
+    <div class="card p-3 mb-3"><h5>Nuevo administrador de un negocio</h5>
+      <form id="admForm" class="row g-2">
+        <div class="col-12 col-md-3"><select id="aNeg" class="form-select" required></select></div>
+        <div class="col-6 col-md-3"><input id="aNom" class="form-control" placeholder="Nombre" required></div>
+        <div class="col-6 col-md-3"><input id="aMail" type="email" class="form-control" placeholder="Correo" required></div>
+        <div class="col-6 col-md-3"><input id="aPass" minlength="6" class="form-control" placeholder="Contraseña (mín. 6)" required></div>
+        <div class="col-12"><button class="btn btn-success">Crear administrador</button></div>
+      </form></div>
+    <ul id="admList" class="list-group"></ul>
   </div>
-</section>
 
-<section id="nosotros">
-  <div class="in about">
-    <div>
-      <h2 data-i="about_t"></h2>
-      <p data-i="about_1"></p>
-      <p data-i="about_2"></p>
-    </div>
-    <ul class="vals">
-      <li><strong data-i="v1"></strong><span data-i="v1d"></span></li>
-      <li><strong data-i="v2"></strong><span data-i="v2d"></span></li>
-      <li><strong data-i="v3"></strong><span data-i="v3d"></span></li>
+  <!-- ADMIN -->
+  <div id="admin-dashboard" class="hidden">
+    <ul class="nav nav-pills mb-3">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#t-res">Resumen</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-cat">Categorías</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-prod">Productos</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-prov">Proveedores</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-comp">Compras</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-vend">Vendedores</button></li>
     </ul>
+    <div class="tab-content">
+
+      <div class="tab-pane fade show active" id="t-res">
+        <div class="row g-2 mb-3">
+          <div class="col-6 col-md-4"><div class="kpi bg-primary">Hoy<b id="kHoy">$0</b><small id="kHoyN"></small></div></div>
+          <div class="col-6 col-md-4"><div class="kpi bg-success">Esta semana<b id="kSem">$0</b><small id="kSemN"></small></div></div>
+          <div class="col-6 col-md-4"><div class="kpi bg-dark">Este mes<b id="kMes">$0</b><small id="kMesN"></small></div></div>
+          <div class="col-6"><div class="kpi bg-secondary">Ventas del periodo<b id="kRango">$0</b><small id="kRangoN"></small></div></div>
+          <div class="col-6"><div class="kpi bg-danger">Invertido en compras<b id="kInv">$0</b><small id="kInvN"></small></div></div>
+        </div>
+        <div class="card p-3">
+          <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+            <div class="btn-group" id="rangeBtns">
+              <button class="btn btn-outline-primary active" data-r="dia">Día</button>
+              <button class="btn btn-outline-primary" data-r="semana">Semana</button>
+              <button class="btn btn-outline-primary" data-r="mes">Mes</button>
+            </div>
+            <label class="ms-auto small">Consultar mes: <input type="month" id="mesSel" class="form-control form-control-sm d-inline-block w-auto"></label>
+          </div>
+          <div class="table-responsive"><table class="table table-sm align-middle">
+            <thead><tr><th>Fecha</th><th>Vendedor</th><th>Detalle</th><th class="text-end">Total</th></tr></thead>
+            <tbody id="salesBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="t-cat">
+        <div class="card p-3 mb-3"><h5>Nueva categoría</h5>
+          <form id="catForm" class="row g-2">
+            <div class="col-8"><input id="catName" class="form-control" placeholder="Ej: Bebidas, Comidas" required></div>
+            <div class="col-4"><button class="btn btn-success w-100">Agregar</button></div>
+          </form></div>
+        <ul id="catList" class="list-group"></ul>
+      </div>
+
+      <div class="tab-pane fade" id="t-prod">
+        <div class="card p-3 mb-3"><h5>Nuevo producto</h5>
+          <form id="prodForm" class="row g-2">
+            <div class="col-12 col-md-4"><input id="pName" class="form-control" placeholder="Nombre" required></div>
+            <div class="col-6 col-md-3"><input id="pPrice" type="number" min="0" step="any" class="form-control" placeholder="Precio de venta" required></div>
+            <div class="col-6 col-md-3"><select id="pCat" class="form-select" required></select></div>
+            <div class="col-12 col-md-2"><button class="btn btn-success w-100">Guardar</button></div>
+          </form></div>
+        <div class="card p-3"><div class="table-responsive"><table class="table table-sm align-middle">
+          <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th></th></tr></thead>
+          <tbody id="prodBody"></tbody></table></div></div>
+      </div>
+
+      <div class="tab-pane fade" id="t-prov">
+        <div class="card p-3 mb-3"><h5>Nuevo proveedor</h5>
+          <form id="supForm" class="row g-2">
+            <div class="col-12 col-md-5"><input id="sName" class="form-control" placeholder="Nombre" required></div>
+            <div class="col-12 col-md-4"><input id="sTel" class="form-control" placeholder="Teléfono"></div>
+            <div class="col-12 col-md-3"><button class="btn btn-success w-100">Agregar</button></div>
+          </form></div>
+        <ul id="supList" class="list-group"></ul>
+      </div>
+
+      <div class="tab-pane fade" id="t-comp">
+        <div class="card p-3 mb-3"><h5>Registrar compra</h5>
+          <form id="compForm" class="row g-2">
+            <div class="col-12 col-md-4"><select id="cSup" class="form-select"></select></div>
+            <div class="col-12 col-md-4"><select id="cProd" class="form-select" required></select></div>
+            <div class="col-12 col-md-4"><input id="cFecha" type="date" class="form-control" required></div>
+            <div class="col-4"><input id="cQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
+            <div class="col-4"><input id="cCost" type="number" min="0" step="any" class="form-control" placeholder="Costo" required></div>
+            <div class="col-4"><select id="cModo" class="form-select"><option value="unidad">Por unidad</option><option value="total">Total</option></select></div>
+            <div class="col-12"><button class="btn btn-success">Guardar compra</button></div>
+          </form></div>
+        <div class="card p-3"><div class="table-responsive"><table class="table table-sm">
+          <thead><tr><th>Fecha</th><th>Producto</th><th>Proveedor</th><th>Cant.</th><th>C/U</th><th class="text-end">Total</th></tr></thead>
+          <tbody id="compBody"></tbody></table></div></div>
+      </div>
+
+      <div class="tab-pane fade" id="t-vend">
+        <div class="card p-3 mb-3"><h5>Nuevo vendedor</h5>
+          <form id="createUserForm" class="row g-2">
+            <div class="col-12 col-md-6"><input id="newUsername" class="form-control" placeholder="Nombre (será su usuario)" required></div>
+            <div class="col-6 col-md-3"><input id="newUserPass" class="form-control" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Código 4 dígitos" required></div>
+            <div class="col-6 col-md-3"><button class="btn btn-success w-100">Crear</button></div>
+          </form></div>
+        <ul id="userList" class="list-group"></ul>
+      </div>
+    </div>
   </div>
-</section>
 
-<section id="contacto">
-  <div class="in">
-    <h2 data-i="contact_t"></h2>
-    <p class="lead" data-i="contact_l"></p>
-    <!-- CAMBIA ESTE CORREO por el tuyo -->
-    <a class="mail" href="mailto:content.varsal@gmail.com">content.varsal@gmail.com</a>
+  <!-- VENDEDOR -->
+  <div id="seller-dashboard" class="hidden">
+    <div id="sHome">
+      <button class="btn btn-success btn-lg w-100 mb-3" onclick="startSale()">＋ Nueva venta</button>
+      <div class="card p-3"><h5>Ventas de hoy: <span id="myTotal">$0</span></h5>
+        <ul id="mySales" class="list-group list-group-flush"></ul></div>
+    </div>
+
+    <div id="sNew" class="hidden">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0" id="sTitle">Nueva venta</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="cancelSale()">Cancelar</button>
+      </div>
+      <div class="cats d-flex mb-3" id="catBar"></div>
+      <div class="row g-2 mb-3" id="prodGrid"></div>
+      <div class="card p-3">
+        <h6>Orden</h6>
+        <ul id="cartList" class="list-group list-group-flush mb-2"></ul>
+        <div class="d-flex justify-content-between align-items-center">
+          <b class="fs-5">Total: <span id="cartTotal">$0</span></b>
+          <button class="btn btn-primary" id="finBtn" onclick="finishSale()">Finalizar orden</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sDone" class="hidden text-center card p-4">
+      <p class="mb-1 text-muted">Total a cobrar</p>
+      <div class="display-4 fw-bold text-success mb-3" id="doneTotal"></div>
+      <button class="btn btn-primary" onclick="backHome()">Listo</button>
+    </div>
   </div>
-</section>
+</div>
+</div>
 
-<footer>© 2026 Lumeozone</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script>
-// Olas
-(function(){
-  var A=[[380,-20],[300,420],[900,150],[1250,320]],B=[[260,-20],[520,700],[1000,520],[1250,780]],N=70,out="";
-  function L(a,b,t){return (a+(b-a)*t).toFixed(1)}
-  for(var i=0;i<N;i++){
-    var t=i/(N-1),p=[];
-    for(var k=0;k<4;k++)p.push(L(A[k][0],B[k][0],t)+","+L(A[k][1],B[k][1],t));
-    out+='<path d="M'+p[0]+' C'+p[1]+' '+p[2]+' '+p[3]+'"/>';
-  }
-  document.getElementById("lines").innerHTML=out;
-})();
-
-// Idiomas
-var T={
- es:{nav_home:"Inicio",nav_apps:"Apps",nav_about:"Quiénes somos",nav_contact:"Contacto",
-  sub:"Apps que facilitan tu vida",
-  desc:"Somos una empresa dedicada a crear aplicaciones simples y útiles que te ahorran tiempo y esfuerzo en el día a día.",
-  cta:"Ver apps",apps_t:"Apps",apps_l:"Herramientas listas para usar desde tu navegador o tu celular.",
-  app_n:"Control de gastos",app_d:"Registra lo que gastas y mira a dónde se va tu dinero cada mes.",app_b:"Abrir app",
-  app2_n:"Control de ventas",app2_d:"Registra tus ventas, calcula el total a cobrar y revisa lo vendido por día, semana y mes.",
-  about_t:"Quiénes somos",
-  about_1:"Somos una empresa dedicada a crear apps que facilitan tu vida. Partimos de una idea sencilla: la tecnología debe ahorrarte tiempo y esfuerzo, no complicarte el día.",
-  about_2:"Diseñamos cada aplicación para que sea fácil de entender, rápida de usar y útil desde el primer minuto.",
-  v1:"Sencillez",v1d:"Sin pasos de más ni menús confusos.",v2:"Utilidad real",v2d:"Cada app resuelve una necesidad concreta.",
-  v3:"Mejora constante",v3d:"Escuchamos a quienes las usan y las mejoramos.",
-  contact_t:"Contacto",contact_l:"¿Tienes una pregunta o una idea? Escríbenos."},
- en:{nav_home:"Home",nav_apps:"Apps",nav_about:"About",nav_contact:"Contact",
-  sub:"Apps that make life easier",
-  desc:"We are a company dedicated to building simple, useful apps that save you time and effort every day.",
-  cta:"See apps",apps_t:"Apps",apps_l:"Tools ready to use from your browser or your phone.",
-  app_n:"Expense tracker",app_d:"Log what you spend and see where your money goes each month.",app_b:"Open app",
-  app2_n:"Sales control",app2_d:"Log your sales, get the total to charge and review what you sold by day, week and month.",
-  about_t:"About us",
-  about_1:"We are a company dedicated to building apps that make your life easier. Our idea is simple: technology should save you time and effort, not complicate your day.",
-  about_2:"We design every app to be easy to understand, quick to use and useful from the first minute.",
-  v1:"Simplicity",v1d:"No extra steps or confusing menus.",v2:"Real usefulness",v2d:"Each app solves a specific need.",
-  v3:"Constant improvement",v3d:"We listen to the people who use our apps and keep improving them.",
-  contact_t:"Contact",contact_l:"Have a question or an idea? Write to us."}
+const firebaseConfig = {
+  apiKey: "AIzaSyAldbC3MFpbIZqiCs3TLX6dnMOAzDWS19o",
+  authDomain: "siteg-691cd.firebaseapp.com",
+  projectId: "siteg-691cd",
+  storageBucket: "siteg-691cd.firebasestorage.app",
+  messagingSenderId: "953137572437",
+  appId: "1:953137572437:web:cc163afa907309005042dc"
 };
-function pick(){
-  var s=null;try{s=localStorage.getItem("lang")}catch(e){}
-  if(s&&T[s])return s;
-  var l=(navigator.languages&&navigator.languages[0]||navigator.language||"en").slice(0,2).toLowerCase();
-  return T[l]?l:"en";
-}
-function apply(l){
-  document.documentElement.lang=l;
-  document.querySelectorAll("[data-i]").forEach(function(e){e.textContent=T[l][e.dataset.i]});
-  document.title="Lumeozone | "+T[l].sub;
-  document.querySelector('meta[name=description]').content=T[l].desc;
-  document.getElementById("lang").textContent=l==="es"?"EN":"ES";
-}
-var cur=pick();apply(cur);
-document.getElementById("lang").onclick=function(){
-  cur=cur==="es"?"en":"es";apply(cur);
-  try{localStorage.setItem("lang",cur)}catch(e){}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app), db = getFirestore(app);
+const auth2 = getAuth(initializeApp(firebaseConfig, "secundaria"));
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$' + Number(n || 0).toLocaleString('es-CO');
+const slug = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const DOM = '@vendedor.lumeozone.app';
+const toEmail = (u, n) => u.includes('@') ? u.trim() : slug(u) + '.' + slug(n || '') + DOM;
+const toPass = p => /^\d{4}$/.test(p) ? 'lz' + p + 'ok' : p;
+let NEG = '', NEGDATA = null;
+const col = n => (n === 'usuarios' || n === 'negocios') ? collection(db, n) : collection(db, 'negocios', NEG, n);
+const bdoc = (c, id) => doc(db, 'negocios', NEG, c, id);
+const fmt = d => d.toLocaleString('es-CO', {dateStyle: 'short', timeStyle: 'short'});
+const fmtD = d => d.toLocaleDateString('es-CO');
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const show = (id, v) => $(id).classList.toggle('hidden', !v);
+const rows = async c => (await getDocs(col(c))).docs.map(d => ({ id: d.id, ...d.data() }));
+const sum = (l, k) => l.reduce((a, x) => a + (x[k] || 0), 0);
+
+let me = null, prods = [], sups = [], cats = [], sales = [], compras = [], hist = null, range = 'dia';
+
+const startOf = r => {
+  const n = new Date(), d = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  if (r === 'dia') return d;
+  if (r === 'semana') { d.setDate(d.getDate() - (n.getDay() + 6) % 7); return d; }
+  return new Date(n.getFullYear(), n.getMonth(), 1);
 };
+const fetchRange = async (c, from, to) => (await getDocs(query(col(c), where("fecha", ">=", from), where("fecha", "<", to), orderBy("fecha", "desc"))))
+  .docs.map(d => { const x = d.data(); return { id: d.id, ...x, f: x.fecha.toDate() }; });
+
+// ---------- login ----------
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const box = $('login-error'); box.classList.add('d-none');
+  try { await signInWithEmailAndPassword(auth, toEmail($('email').value, $('negocio').value), toPass($('password').value)); }
+  catch (err) { box.innerText = "Usuario o código incorrecto."; box.classList.remove('d-none'); }
+});
+window.logout = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { me = null; show('login-section', true); show('dashboard-section', false); return; }
+  const box = $('login-error');
+  try {
+    const s = await getDoc(doc(db, "usuarios", user.uid));
+    if (!s.exists()) { box.innerText = "Usuario no registrado. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
+    if (s.data().activo === false) { box.innerText = "Tu usuario está inactivo. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
+    me = { uid: user.uid, email: user.email, ...s.data() };
+    NEG = ''; NEGDATA = null;
+    if (me.role !== 'superadmin') {
+      NEG = me.negocioId || '';
+      const n = NEG ? await getDoc(doc(db, "negocios", NEG)) : null;
+      if (!n || !n.exists() || n.data().activo === false) { box.innerText = "Tu negocio no está disponible. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
+      NEGDATA = n.data();
+    }
+    show('login-section', false); show('dashboard-section', true);
+    const rl = me.role === 'superadmin' ? 'Super admin' : me.role === 'admin' ? 'Admin' : 'Vendedor';
+    $('user-display').innerText = `${NEGDATA ? NEGDATA.nombre + ' · ' : ''}${me.nombre || me.email} (${rl})`;
+    show('super-dashboard', me.role === 'superadmin'); show('admin-dashboard', me.role === 'admin'); show('seller-dashboard', me.role === 'vendedor');
+    if (me.role === 'superadmin') await loadSuper(); else if (me.role === 'admin') await loadAdmin(); else await loadSeller();
+  } catch (err) { box.innerText = "Error: " + err.message; box.classList.remove('d-none'); signOut(auth); }
+});
+
+// ---------- ADMIN ----------
+async function loadAdmin() {
+  [cats, sups] = await Promise.all([rows("categorias"), rows("proveedores")]);
+  prods = await rows("products");
+  renderCats(); renderSups(); renderProds();
+  $('mesSel').value = dayKey().slice(0, 7); $('cFecha').value = dayKey(); hist = null;
+  await Promise.all([loadUsers(), loadCompras(), loadSales()]);
+}
+const catName = id => (cats.find(c => c.id === id) || {}).nombre || 'Sin categoría';
+
+function renderCats() {
+  $('catList').innerHTML = cats.map(c => `<li class="list-group-item d-flex justify-content-between">${esc(c.nombre)}
+    <button class="btn btn-sm btn-outline-danger" onclick="delDoc('categorias','${c.id}')">Borrar</button></li>`).join('')
+    || '<li class="list-group-item text-muted">Sin categorías</li>';
+  $('pCat').innerHTML = '<option value="">Categoría…</option>' + cats.map(c => `<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+}
+function renderSups() {
+  $('supList').innerHTML = sups.map(s => `<li class="list-group-item d-flex justify-content-between">
+    <span>${esc(s.nombre)} <small class="text-muted">${esc(s.telefono || '')}</small></span>
+    <button class="btn btn-sm btn-outline-danger" onclick="delDoc('proveedores','${s.id}')">Borrar</button></li>`).join('')
+    || '<li class="list-group-item text-muted">Sin proveedores</li>';
+  $('cSup').innerHTML = '<option value="">Sin proveedor</option>' + sups.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+}
+function renderProds() {
+  $('prodBody').innerHTML = prods.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(catName(p.categoriaId))}</td><td>${money(p.price)}</td>
+    <td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="editPrice('${p.id}')">Precio</button>
+    <button class="btn btn-sm btn-outline-danger" onclick="delDoc('products','${p.id}')">X</button></td></tr>`).join('')
+    || '<tr><td colspan="4" class="text-muted">Sin productos</td></tr>';
+  $('cProd').innerHTML = '<option value="">Producto…</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+}
+
+async function loadUsers() {
+  const l = (await getDocs(query(col("usuarios"), where("negocioId", "==", NEG)))).docs.map(d => ({ id: d.id, ...d.data() }));
+  $('userList').innerHTML = l.map(u => {
+    const inact = u.activo === false;
+    return `<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>${esc(u.nombre || u.email)} <span class="badge ${u.role === 'admin' ? 'bg-primary' : inact ? 'bg-secondary' : 'bg-success'}">${u.role === 'admin' ? 'admin' : inact ? 'inactivo' : 'activo'}</span></span>
+    ${u.role === 'admin' ? '' : `<button class="btn btn-sm ${inact ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleUser('${u.id}',${inact})">${inact ? 'Activar' : 'Inactivar'}</button>`}</li>`;
+  }).join('');
+}
+window.toggleUser = async (id, activar) => { await updateDoc(doc(db, "usuarios", id), { activo: activar }); loadUsers(); };
+
+async function loadCompras() {
+  const snap = await getDocs(query(col("compras"), orderBy("fecha", "desc"), limit(30)));
+  $('compBody').innerHTML = snap.docs.map(d => d.data()).map(c => `<tr><td>${fmtD(c.fecha.toDate())}</td><td>${esc(c.producto)}</td>
+    <td>${esc(c.proveedor || '—')}</td><td>${c.cantidad}</td><td>${money(c.costoUnidad)}</td><td class="text-end">${money(c.costoTotal)}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="text-muted">Sin compras</td></tr>';
+}
+
+async function loadSales() {
+  const from = new Date(Math.min(startOf('mes'), startOf('semana'))), to = new Date(2100, 0, 1);
+  [sales, compras] = await Promise.all([fetchRange("ventas", from, to), fetchRange("compras", from, to)]);
+  [['Hoy', 'dia'], ['Sem', 'semana'], ['Mes', 'mes']].forEach(([k, r]) => {
+    const l = sales.filter(v => v.f >= startOf(r));
+    $('k' + k).innerText = money(sum(l, 'totalGanancia')); $('k' + k + 'N').innerText = l.length + ' ventas';
+  });
+  render();
+}
+function render() {
+  let v, c;
+  if (hist) { v = hist.v; c = hist.c; }
+  else { const s = startOf(range); v = sales.filter(x => x.f >= s); c = compras.filter(x => x.f >= s); }
+  $('salesBody').innerHTML = v.map(x => `<tr><td>${fmt(x.f)}</td><td>${esc(x.vendedorNombre || x.vendedorEmail)}</td>
+    <td>${esc((x.productosDetalles || []).join(', '))}</td><td class="text-end">${money(x.totalGanancia)}</td></tr>`).join('')
+    || '<tr><td colspan="4" class="text-muted">Sin ventas en este periodo</td></tr>';
+  $('kRango').innerText = money(sum(v, 'totalGanancia')); $('kRangoN').innerText = v.length + ' ventas';
+  $('kInv').innerText = money(sum(c, 'costoTotal')); $('kInvN').innerText = c.length + ' compras';
+}
+$('rangeBtns').addEventListener('click', e => {
+  const r = e.target.dataset.r; if (!r) return;
+  range = r; hist = null; $('mesSel').value = dayKey().slice(0, 7);
+  [...$('rangeBtns').children].forEach(b => b.classList.toggle('active', b === e.target)); render();
+});
+$('mesSel').addEventListener('change', async () => {
+  const v = $('mesSel').value;
+  if (!v || v === dayKey().slice(0, 7)) { hist = null; return render(); }
+  const [y, m] = v.split('-').map(Number), from = new Date(y, m - 1, 1), to = new Date(y, m, 1);
+  const [a, b] = await Promise.all([fetchRange("ventas", from, to), fetchRange("compras", from, to)]);
+  hist = { v: a, c: b }; [...$('rangeBtns').children].forEach(x => x.classList.remove('active')); render();
+});
+
+window.delDoc = async (c, id) => { if (!confirm('¿Borrar?')) return; await deleteDoc(bdoc(c, id)); loadAdmin(); };
+window.editPrice = async id => {
+  const v = prompt('Nuevo precio de venta:'); if (v === null || v === '' || isNaN(v)) return;
+  await updateDoc(bdoc("products", id), { price: Number(v) }); prods = await rows("products"); renderProds();
+};
+
+$('catForm').addEventListener('submit', async e => {
+  e.preventDefault(); await addDoc(col("categorias"), { nombre: $('catName').value.trim() });
+  e.target.reset(); cats = await rows("categorias"); renderCats(); renderProds();
+});
+$('supForm').addEventListener('submit', async e => {
+  e.preventDefault(); await addDoc(col("proveedores"), { nombre: $('sName').value.trim(), telefono: $('sTel').value.trim() });
+  e.target.reset(); sups = await rows("proveedores"); renderSups();
+});
+$('prodForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  await addDoc(col("products"), { name: $('pName').value.trim(), price: Number($('pPrice').value), categoriaId: $('pCat').value });
+  e.target.reset(); prods = await rows("products"); renderProds();
+});
+$('compForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const p = prods.find(x => x.id === $('cProd').value); if (!p) return;
+  const q = Number($('cQty').value), c = Number($('cCost').value), porU = $('cModo').value === 'unidad';
+  const s = sups.find(x => x.id === $('cSup').value);
+  await addDoc(col("compras"), { productoId: p.id, producto: p.name, proveedorId: s ? s.id : '', proveedor: s ? s.nombre : '',
+    cantidad: q, costoUnidad: porU ? c : c / q, costoTotal: porU ? c * q : c, fecha: new Date($('cFecha').value + 'T12:00:00') });
+  e.target.reset(); $('cFecha').value = dayKey(); await Promise.all([loadCompras(), loadSales()]);
+});
+$('createUserForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const nombre = $('newUsername').value.trim(), pin = $('newUserPass').value, email = slug(nombre) + '.' + slug(NEGDATA.codigo) + DOM;
+  if (!slug(nombre) || !/^\d{4}$/.test(pin)) return alert('Escribe un nombre válido y un código de 4 dígitos.');
+  try {
+    const cred = await createUserWithEmailAndPassword(auth2, email, toPass(pin));
+    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'vendedor', activo: true, negocioId: NEG });
+    await signOut(auth2);
+    alert(`Vendedor creado.\nNegocio: ${NEGDATA.codigo}\nUsuario: ${nombre}\nCódigo: ${pin}`);
+    e.target.reset(); loadUsers();
+  } catch (err) { alert(err.code === 'auth/email-already-in-use' ? 'Ya existe un vendedor con ese nombre.' : 'Error: ' + err.message); }
+});
+
+// ---------- VENDEDOR ----------
+let cart = {}, editId = null, selCat = '', mine = [];
+const sView = v => ['Home', 'New', 'Done'].forEach(x => show('s' + x, x.toLowerCase() === v));
+
+async function loadSeller() {
+  [prods, cats] = await Promise.all([rows("products"), rows("categorias")]);
+  backHome();
+}
+async function loadMine() {
+  const snap = await getDocs(query(col("ventas"), where("vendedorId", "==", me.uid), where("dia", "==", dayKey())));
+  mine = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.fecha.seconds - a.fecha.seconds);
+  $('myTotal').innerText = money(sum(mine, 'totalGanancia'));
+  $('mySales').innerHTML = mine.map(v => `<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>${esc((v.productosDetalles || []).join(', '))}</span>
+    <span class="text-nowrap"><b>${money(v.totalGanancia)}</b> <button class="btn btn-sm btn-outline-primary ms-1" onclick="editSale('${v.id}')">Editar</button></span></li>`).join('')
+    || '<li class="list-group-item text-muted">Aún no hay ventas hoy</li>';
+}
+window.backHome = () => { sView('home'); loadMine(); };
+window.cancelSale = () => backHome();
+window.startSale = old => {
+  cart = {}; editId = old ? old.id : null;
+  (old ? old.items || [] : []).forEach(i => cart[i.id] = { nombre: i.nombre, precio: i.precio, cantidad: i.cantidad });
+  $('sTitle').innerText = old ? 'Editar venta' : 'Nueva venta';
+  selCat = groups()[0]?.id || ''; sView('new'); renderNew();
+};
+window.editSale = id => startSale(mine.find(v => v.id === id));
+
+const groups = () => [...cats, ...(prods.some(p => !p.categoriaId) ? [{ id: '_', nombre: 'Otros' }] : [])];
+window.pickCat = id => { selCat = id; renderNew(); };
+window.chg = (id, d) => {
+  const b = prods.find(x => x.id === id);
+  if (!cart[id]) { if (!b) return; cart[id] = { nombre: b.name, precio: b.price, cantidad: 0 }; }
+  cart[id].cantidad += d; if (cart[id].cantidad <= 0) delete cart[id];
+  renderNew();
+};
+function renderNew() {
+  $('catBar').innerHTML = groups().map(g => `<button class="btn ${g.id === selCat ? 'btn-primary' : 'btn-outline-primary'}" onclick="pickCat('${g.id}')">${esc(g.nombre)}</button>`).join('')
+    || '<span class="text-muted">El administrador aún no creó categorías.</span>';
+  $('prodGrid').innerHTML = prods.filter(p => selCat === '_' ? !p.categoriaId : p.categoriaId === selCat).map(p => `
+    <div class="col-6 col-md-4"><div class="pcard bg-white p-2 text-center">
+      <div class="fw-semibold">${esc(p.name)}</div><div class="text-muted small mb-2">${money(p.price)}</div>
+      <div class="d-flex justify-content-center align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="chg('${p.id}',-1)">−</button>
+        <b>${cart[p.id]?.cantidad || 0}</b>
+        <button class="btn btn-sm btn-primary" onclick="chg('${p.id}',1)">＋</button></div></div></div>`).join('');
+  const items = Object.entries(cart);
+  $('cartList').innerHTML = items.map(([id, i]) => `<li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <span>${esc(i.nombre)} x${i.cantidad}</span>
+    <span class="text-nowrap">${money(i.precio * i.cantidad)}
+      <button class="btn btn-sm btn-outline-secondary" onclick="chg('${id}',-1)">−</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="chg('${id}',1)">＋</button></span></li>`).join('')
+    || '<li class="list-group-item text-muted px-0">Agrega productos con ＋</li>';
+  $('cartTotal').innerText = money(items.reduce((a, [, i]) => a + i.precio * i.cantidad, 0));
+  $('finBtn').disabled = !items.length;
+}
+window.finishSale = async () => {
+  const items = Object.entries(cart).map(([id, i]) => ({ id, ...i }));
+  if (!items.length) return;
+  const total = items.reduce((a, i) => a + i.precio * i.cantidad, 0);
+  const data = { items, productosDetalles: items.map(i => `${i.nombre} x${i.cantidad}`), cantidad: sum(items, 'cantidad'), totalGanancia: total };
+  try {
+    if (editId) await updateDoc(bdoc("ventas", editId), data);
+    else await addDoc(col("ventas"), { ...data, vendedorId: me.uid, vendedorNombre: me.nombre || me.email, vendedorEmail: me.email, fecha: new Date(), dia: dayKey() });
+    $('doneTotal').innerText = money(total); sView('done');
+  } catch (err) { alert("No se pudo guardar: " + err.message); }
+};
+
+// ---------- SUPER ADMIN ----------
+let negs = [];
+async function loadSuper() {
+  negs = (await getDocs(collection(db, "negocios"))).docs.map(d => ({ id: d.id, ...d.data() }));
+  $('negList').innerHTML = negs.map(n => `<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>${esc(n.nombre)} <small class="text-muted">código: ${esc(n.codigo)}</small> <span class="badge ${n.activo === false ? 'bg-secondary' : 'bg-success'}">${n.activo === false ? 'inactivo' : 'activo'}</span></span>
+    <button class="btn btn-sm ${n.activo === false ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleNeg('${n.id}',${n.activo === false})">${n.activo === false ? 'Activar' : 'Inactivar'}</button></li>`).join('')
+    || '<li class="list-group-item text-muted">Aún no hay negocios</li>';
+  $('aNeg').innerHTML = '<option value="">Negocio…</option>' + negs.map(n => `<option value="${n.id}">${esc(n.nombre)}</option>`).join('');
+  const adm = (await getDocs(query(collection(db, "usuarios"), where("role", "==", "admin")))).docs.map(d => d.data());
+  $('admList').innerHTML = adm.map(a => `<li class="list-group-item">${esc(a.nombre)} <small class="text-muted">${esc(a.email)}</small> · ${esc((negs.find(n => n.id === a.negocioId) || {}).nombre || '')}</li>`).join('')
+    || '<li class="list-group-item text-muted">Sin administradores</li>';
+}
+window.toggleNeg = async (id, act) => { await updateDoc(doc(db, "negocios", id), { activo: act }); loadSuper(); };
+$('negForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const nombre = $('nNom').value.trim(), codigo = slug($('nCod').value);
+  if (!codigo) return alert('Código inválido.');
+  if (negs.some(n => n.codigo === codigo)) return alert('Ese código ya existe.');
+  await addDoc(collection(db, "negocios"), { nombre, codigo, activo: true });
+  e.target.reset(); loadSuper();
+});
+$('admForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const nombre = $('aNom').value.trim(), email = $('aMail').value.trim();
+  try {
+    const cred = await createUserWithEmailAndPassword(auth2, email, $('aPass').value);
+    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'admin', activo: true, negocioId: $('aNeg').value });
+    await signOut(auth2);
+    alert(`Administrador creado: ${email}`); e.target.reset(); loadSuper();
+  } catch (err) { alert(err.code === 'auth/email-already-in-use' ? 'Ese correo ya existe en Authentication.' : 'Error: ' + err.message); }
+});
+
+// ---------- PWA ----------
+let deferred = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; show('installBtn', true); });
+$('installBtn').addEventListener('click', async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; show('installBtn', false); });
+window.addEventListener('appinstalled', () => show('installBtn', false));
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>
