@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lumeozone - Gestión Comercial</title>
-    <!-- Estilos CSS (Bootstrap para diseño rápido y Google Fonts) -->
+    <link rel="manifest" href="/manifest.json">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; }
@@ -12,20 +12,21 @@
         .card-product:hover { transform: translateY(-5px); }
         .hidden { display: none !important; }
         #app { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .navbar { padding: 10px 16px; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    
-    <!-- MODO LOGIN -->
+
+    <!-- LOGIN -->
     <div id="login-section">
         <div class="card shadow p-4 mb-3 rounded">
             <h3 class="text-center mb-4 text-primary">Bienvenido a Lumeozone</h3>
             <form id="loginForm">
                 <div class="mb-3">
                     <label>Correo Electrónico</label>
-                    <input type="email" id="email" class="form-control" required placeholder="admin@lumeozone.com o vendedor@...">
+                    <input type="email" id="email" class="form-control" required placeholder="correo@ejemplo.com">
                 </div>
                 <div class="mb-3">
                     <label>Contraseña</label>
@@ -34,90 +35,84 @@
                 <button type="submit" class="btn btn-primary w-100">Ingresar</button>
             </form>
         </div>
-        <!-- Área para error -->
         <div id="login-error" class="alert alert-danger d-none"></div>
     </div>
 
-    <!-- MODO APLICACIÓN (Dashboard) -->
+    <!-- DASHBOARD -->
     <div id="dashboard-section" class="hidden">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 rounded">
+        <nav class="navbar navbar-dark bg-dark mb-4 rounded d-flex justify-content-between">
             <a class="navbar-brand" href="#">Lumeozone</a>
-            <span class="text-light me-3" id="user-display"></span>
-            <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar Sesión</button>
+            <div>
+                <span class="text-light me-3" id="user-display"></span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar Sesión</button>
+            </div>
         </nav>
 
-        <!-- MODO ADMIN -->
+        <!-- ADMIN -->
         <div id="admin-dashboard" class="hidden">
             <h4 class="mb-3 text-primary">Panel de Administrador 🛠️</h4>
-            
-            <!-- Crear Usuario -->
+
             <div class="card p-3 mb-4 bg-light border-0">
                 <h5>Nuevo Vendedor</h5>
                 <form id="createUserForm" class="row g-3">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" id="newUsername" placeholder="Nombre del vendedor">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="newUsername" placeholder="Nombre del vendedor" required>
                     </div>
-                    <div class="col-md-3">
-                        <input type="email" class="form-control" id="newUserEmail" placeholder="Correo">
+                    <div class="col-md-4">
+                        <input type="email" class="form-control" id="newUserEmail" placeholder="Correo" required>
                     </div>
-                    <div class="col-md-3">
-                        <input type="password" class="form-control" id="newUserPass" placeholder="Contraseña">
+                    <div class="col-md-4">
+                        <input type="password" class="form-control" id="newUserPass" placeholder="Contraseña (mín. 6)" minlength="6" required>
                     </div>
-                    <button type="submit" class="btn btn-success">Crear Usuario</button>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Crear Vendedor</button>
+                    </div>
                 </form>
             </div>
 
-            <!-- Lista de Usuarios -->
             <div class="card p-3 mb-4 bg-white shadow-sm">
-                <h5>Usuarios Actualizados (Vendedores)</h5>
+                <h5>Usuarios</h5>
                 <ul id="userList" class="list-group"></ul>
             </div>
 
-            <hr>
-            <p class="text-muted"><strong>Nota:</strong> Para editar productos en el modo Vendedor, puedes agregar un nuevo producto aquí y luego asignarle precio manualmente.</p>
+            <div class="card p-3 mb-4 bg-white shadow-sm">
+                <h5>Últimas ventas</h5>
+                <ul id="salesList" class="list-group"></ul>
+            </div>
         </div>
 
-        <!-- MODO VENDEDOR -->
+        <!-- VENDEDOR -->
         <div id="seller-dashboard" class="hidden">
             <h4 class="mb-3 text-success">Panel de Vendedores 🛒</h4>
 
-            <!-- Listado Productos (Simulado) -->
             <div class="card p-3 mb-4 bg-white shadow-sm">
                 <h5>Catálogo de Ventas</h5>
-                <div id="product-list" class="row g-2">
-                    <!-- Los productos se cargan aquí -->
-                </div>
+                <div id="product-list" class="row g-2"></div>
             </div>
 
-            <!-- Agregar Producto a Venta (Rápido) -->
             <div class="card p-3 mb-4 bg-light border-0">
-                <h5>Agregar nuevo producto rápido</h5>
+                <h5>Registrar venta rápida</h5>
                 <form id="addProductForm" onsubmit="event.preventDefault(); addQuickSale()">
                     <div class="mb-2">
-                        <input type="text" id="qProdName" class="form-control" placeholder="Nombre del Producto (o crear uno nuevo)">
+                        <input type="text" id="qProdName" class="form-control" placeholder="Nombre del producto" required>
                     </div>
                     <div class="mb-2">
-                        <input type="number" id="qProdQty" class="form-control" placeholder="Cantidad a vender">
+                        <input type="number" id="qProdQty" class="form-control" placeholder="Cantidad a vender" min="1" required>
                     </div>
-                    <button class="btn btn-primary w-100">Registrar Venta en Base de Datos</button>
+                    <button class="btn btn-primary w-100">Registrar Venta</button>
                 </form>
             </div>
         </div>
-
     </div>
-
 </div>
 
-<!-- JAVASCRIPT DE NEGOCIO -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- INICIAR FIREBASE (REEMPLAZA CON TUS DATOS REALES) -->
 <script type="module">
-    // IMPORTACIÓN DE FIREBASE MODULES
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, addDoc, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, query, orderBy, limit, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ⚠️ PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE 👇
+    // ⚠️ PEGA AQUÍ TU CONFIGURACIÓN REAL DE FIREBASE 👇
     const firebaseConfig = {
         apiKey: "AIzaSyAldbC3MFpbIZqiCs3TLX6dnMOAzDWS19o",
         authDomain: "siteg-691cd.firebaseapp.com",
@@ -127,179 +122,229 @@
         appId: "1:953137572437:web:cc163afa907309005042dc"
     };
 
-    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    
+
+    // App secundaria: permite al admin crear vendedores sin cerrar su propia sesión
+    const secondaryApp = initializeApp(firebaseConfig, "secundaria");
+    const secondaryAuth = getAuth(secondaryApp);
+
     let currentUser = null;
-    let productsDb = []; // Variables temporales para manejar datos locales mientras configuras la DB
+    let productsDb = [];
 
-    // --- LÓGICA DE AUTH (LOGIN) ---
+    const $ = (id) => document.getElementById(id);
+    const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const money = (n) => Number(n || 0).toLocaleString('es-CO');
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    // ---------- LOGIN ----------
+    $('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-        
+        const errorBox = $('login-error');
+        errorBox.classList.add('d-none');
         try {
-            // Intentar iniciar sesión en Auth
-            // Nota: Firestore no valida si el usuario existe, Auth lo hace.
-            // Si no existe en Auth, crea la cuenta (para facilitar pruebas).
-            
-            if (!currentUser) { 
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                currentUser = userCredential.user;
-                
-                // Guardar rol en Firestore para saber si es admin o vendedor
-                await setDoc(doc(db, "users", currentUser.uid), {
-                    uid: currentUser.uid,
-                    email: currentUser.email,
-                    role: 'vendedor' // Por defecto vendedor. Admin lo sobrescribe manualmente.
-                });
-            } else {
-                // Si ya existe en Auth (creado anteriormente), login normal
-                await signInWithEmailAndPassword(auth, email, pass);
-            }
-
-            showDashboard();
+            await signInWithEmailAndPassword(auth, $('email').value.trim(), $('password').value);
+            // onAuthStateChanged se encarga de mostrar el dashboard
         } catch (error) {
-            document.getElementById('login-error').innerText = "Error: " + error.message;
+            errorBox.innerText = "Error: " + error.message;
+            errorBox.classList.remove('d-none');
         }
     });
 
-    function logout() {
-        signOut(auth);
-    }
-
-    // --- LÓGICA DE GESTIÓN DE DATOS Y ROLES ---
+    function logout() { signOut(auth); }
+    window.logout = logout;
+    window.addQuickSale = addQuickSale;
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            showDashboard();
+            await showDashboard();
         } else {
-            document.getElementById('login-section').classList.remove('hidden');
-            document.getElementById('dashboard-section').classList.add('hidden');
+            currentUser = null;
+            $('login-section').classList.remove('hidden');
+            $('dashboard-section').classList.add('hidden');
+            $('admin-dashboard').classList.add('hidden');
+            $('seller-dashboard').classList.add('hidden');
         }
     });
 
     async function showDashboard() {
-        // Verificar rol desde Firestore
-        const userRef = doc(db, "users", currentUser.uid);
-        const snapshot = await getDoc(userRef);
-        
-        if (snapshot.exists()) {
-            currentUser.role = snapshot.data().role;
-        } else {
-            currentUser.role = 'vendedor'; // Default
-        }
+        const errorBox = $('login-error');
+        try {
+            const snapshot = await getDoc(doc(db, "usuarios", currentUser.uid));
 
-        document.getElementById('user-display').innerText = `Hola, ${currentUser.email.split('@')[0]} (${currentUser.role === 'admin' ? 'Admin' : 'Vendedor'})`;
+            if (!snapshot.exists()) {
+                errorBox.innerText = "Tu usuario no está registrado en el sistema. Contacta al administrador.";
+                errorBox.classList.remove('d-none');
+                await signOut(auth);
+                return;
+            }
 
-        if (currentUser.role === 'admin') {
-            document.getElementById('admin-dashboard').classList.remove('hidden');
-        } else {
-            document.getElementById('seller-dashboard').classList.remove('hidden');
-            // Cargar productos para mostrar al vendedor
-            await loadProducts(); 
+            const data = snapshot.data();
+            currentUser.role = data.role || 'vendedor';
+            currentUser.ganancias = data.gananciasAcumuladas || 0;
+
+            $('login-section').classList.add('hidden');
+            $('dashboard-section').classList.remove('hidden');
+            $('admin-dashboard').classList.add('hidden');
+            $('seller-dashboard').classList.add('hidden');
+
+            $('user-display').innerText =
+                `Hola, ${currentUser.email.split('@')[0]} (${currentUser.role === 'admin' ? 'Admin' : 'Vendedor'})`;
+
+            if (currentUser.role === 'admin') {
+                $('admin-dashboard').classList.remove('hidden');
+                await loadUsers();
+                await loadSales();
+            } else {
+                $('seller-dashboard').classList.remove('hidden');
+                await loadProducts();
+            }
+        } catch (err) {
+            console.error(err);
+            errorBox.innerText = "Error al cargar tu perfil: " + err.message;
+            errorBox.classList.remove('d-none');
+            await signOut(auth);
         }
     }
 
-    /* --- MÓDULO DE ADMINISTRADOR --- */
-    
-    document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+    // ---------- ADMIN ----------
+    $('createUserForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const newUsername = document.getElementById('newUsername').value;
-        const newUserEmail = document.getElementById('newUserEmail').value;
-        const newUserPass = document.getElementById('newUserPass').value;
+        const nombre = $('newUsername').value.trim();
+        const email = $('newUserEmail').value.trim();
+        const pass = $('newUserPass').value;
 
-        // Crear usuario en Auth
-        const cred = await createUserWithEmailAndPassword(auth, newUserEmail, newUserPass);
-        const newUid = cred.user.uid;
-
-        // Asignar rol ADMIN manualmente en Firestore
-        await updateDoc(doc(db, "users", newUid), { role: 'admin' });
-        
-        alert(`Usuario ${newUsername} creado con ROLES DE ADMINISTRADOR.`);
+        try {
+            const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+            await setDoc(doc(db, "usuarios", cred.user.uid), {
+                uid: cred.user.uid,
+                nombre,
+                email,
+                role: 'vendedor',
+                gananciasAcumuladas: 0
+            });
+            await signOut(secondaryAuth);
+            alert(`Vendedor ${nombre} creado correctamente.`);
+            e.target.reset();
+            await loadUsers();
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
     });
 
-    /* --- MÓDULO VENDEDOR --- */
+    async function loadUsers() {
+        const list = $('userList');
+        try {
+            const snap = await getDocs(collection(db, "usuarios"));
+            let html = '';
+            snap.forEach(d => {
+                const u = d.data();
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${escapeHtml(u.nombre || u.email || d.id)}
+                        <small class="text-muted">${escapeHtml(u.email || '')}</small></span>
+                    <span class="badge ${u.role === 'admin' ? 'bg-primary' : 'bg-success'}">${escapeHtml(u.role || 'sin rol')}</span>
+                </li>`;
+            });
+            list.innerHTML = html || '<li class="list-group-item text-muted">Sin usuarios</li>';
+        } catch (err) {
+            list.innerHTML = `<li class="list-group-item text-danger">Error: ${escapeHtml(err.message)}</li>`;
+        }
+    }
 
-    // Simulación de carga de productos (En producción se usa Firestore Collection 'products')
+    async function loadSales() {
+        const list = $('salesList');
+        try {
+            const q = query(collection(db, "ventas"), orderBy("fecha", "desc"), limit(20));
+            const snap = await getDocs(q);
+            let html = '';
+            snap.forEach(d => {
+                const v = d.data();
+                const fecha = v.fecha?.toDate ? v.fecha.toDate().toLocaleString('es-CO') : '';
+                html += `<li class="list-group-item d-flex justify-content-between">
+                    <span>${escapeHtml((v.productosDetalles || []).join(', '))}
+                        <small class="text-muted">· ${escapeHtml(v.vendedorEmail)} · ${escapeHtml(fecha)}</small></span>
+                    <strong>$${money(v.totalGanancia)}</strong>
+                </li>`;
+            });
+            list.innerHTML = html || '<li class="list-group-item text-muted">Aún no hay ventas</li>';
+        } catch (err) {
+            list.innerHTML = `<li class="list-group-item text-danger">Error: ${escapeHtml(err.message)}</li>`;
+        }
+    }
+
+    // ---------- VENDEDOR ----------
     async function loadProducts() {
-        const container = document.getElementById('product-list');
-        
-        // NOTA: Aquí deberías usar getDocs(db, collection(db, "products"))
-        // Para que funcione al instante en este código genérico, simulamos datos:
-        productsDb = [
-            { id: 1, name: 'Café Especial', price: 3500 },
-            { id: 2, name: 'Galletas', price: 2500 },
-            { id: 3, name: 'Tostadas', price: 4500 },
-        ];
+        const container = $('product-list');
+        productsDb = [];
+        try {
+            const snap = await getDocs(collection(db, "products"));
+            snap.forEach(d => {
+                const p = d.data();
+                productsDb.push({ id: d.id, name: p.name || p.nombre, price: Number(p.price ?? p.precio ?? 0) });
+            });
+        } catch (err) {
+            console.warn("No se pudieron leer productos:", err.message);
+        }
 
-        let html = '';
-        productsDb.forEach(prod => {
-            html += `
-                <div class="col-md-4">
-                    <div class="card card-product p-2">
-                        <h6>${prod.name}</h6>
-                        <p class="text-muted">Cant. Disponible: 0</p>
-                    </div>
+        // Si la colección 'products' está vacía, usa productos de ejemplo
+        if (productsDb.length === 0) {
+            productsDb = [
+                { id: 1, name: 'Café Especial', price: 3500 },
+                { id: 2, name: 'Galletas', price: 2500 },
+                { id: 3, name: 'Tostadas', price: 4500 },
+            ];
+        }
+
+        container.innerHTML = productsDb.map(p => `
+            <div class="col-md-4">
+                <div class="card card-product p-2">
+                    <h6>${escapeHtml(p.name)}</h6>
+                    <p class="text-muted mb-0">Precio: $${money(p.price)}</p>
                 </div>
-            `;
-        });
-        container.innerHTML = html;
+            </div>`).join('');
     }
 
     function addQuickSale() {
-        const name = document.getElementById('qProdName').value;
-        const qty = parseInt(document.getElementById('qProdQty').value);
+        const name = $('qProdName').value.trim();
+        const qty = parseInt($('qProdQty').value, 10);
 
-        // Buscar precio del producto en base de datos simulada
-        let priceToCharge = 3500; // Precio por defecto si no existe
-        
-        // Si el nombre coincide con uno existente, usar ese precio
-        const existingProduct = productsDb.find(p => p.name.toLowerCase() === name.toLowerCase());
-        if(existingProduct) {
-            priceToCharge = existingProduct.price;
-        } else {
-            // Al ser nuevo producto en la tienda, asignamos un precio estándar (ej: 3000)
-            priceToCharge = 3000; 
+        if (!name || !qty || qty < 1) {
+            alert("Escribe el producto y una cantidad válida.");
+            return;
         }
 
-        const total = priceToCharge * qty;
+        const existing = productsDb.find(p => p.name.toLowerCase() === name.toLowerCase());
+        const price = existing ? existing.price : 3000; // precio estándar si el producto no existe
+        const total = price * qty;
 
         registrarVenta(name, qty, total);
-        
-        // Limpiar formulario
-        document.getElementById('qProdName').value = '';
-        document.getElementById('qProdQty').value = '';
+
+        $('qProdName').value = '';
+        $('qProdQty').value = '';
     }
 
     async function registrarVenta(nombreProd, cantidad, total) {
         try {
-            // 1. Registrar venta en Firestore
             await addDoc(collection(db, "ventas"), {
                 vendedorEmail: currentUser.email,
-                productosDetalles: [nombreProd], 
+                vendedorId: currentUser.uid,
+                productosDetalles: [nombreProd],
+                cantidad,
                 totalGanancia: total,
-                fecha: new Date(),
-                idVendedor: currentUser.uid
+                fecha: new Date()
             });
 
-            // 2. Actualizar cuentas ganadas en el usuario
-            const userDocRef = doc(db, "users", currentUser.uid);
-            await updateDoc(userDocRef, {
-                gananciasAcumuladas: (currentUser.ganancias || 0) + total
+            await updateDoc(doc(db, "usuarios", currentUser.uid), {
+                gananciasAcumuladas: increment(total)
             });
 
-            alert(`Venta registrada exitosamente por ${total} COP.`);
+            alert(`Venta registrada exitosamente por $${money(total)} COP.`);
         } catch (e) {
             console.error("Error en la venta", e);
+            alert("No se pudo registrar la venta: " + e.message);
         }
     }
-
 </script>
 </body>
 </html>
