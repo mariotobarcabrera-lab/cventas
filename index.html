@@ -80,6 +80,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
     <div class="tab-content">
 
       <div class="tab-pane fade show active" id="t-res">
+        <div id="lowBox"></div>
         <div class="row g-2 mb-3">
           <div class="col-6 col-md-4"><div class="kpi bg-primary">Hoy<b id="kHoy">$0</b><small id="kHoyN"></small></div></div>
           <div class="col-6 col-md-4"><div class="kpi bg-success">Esta semana<b id="kSem">$0</b><small id="kSemN"></small></div></div>
@@ -105,8 +106,9 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
       <div class="tab-pane fade" id="t-cat">
         <div class="card p-3 mb-3"><h5>Nueva categoría</h5>
           <form id="catForm" class="row g-2">
-            <div class="col-8"><input id="catName" class="form-control" placeholder="Ej: Bebidas, Comidas" required></div>
-            <div class="col-4"><button class="btn btn-success w-100">Agregar</button></div>
+            <div class="col-12 col-md-5"><input id="catName" class="form-control" placeholder="Ej: Bebidas, Vegetales" required></div>
+            <div class="col-6 col-md-4"><select id="catTipo" class="form-select"><option value="venta">Para vender (la ve el vendedor)</option><option value="insumo">Compra de insumos (oculta)</option></select></div>
+            <div class="col-6 col-md-3"><button class="btn btn-success w-100">Agregar</button></div>
           </form></div>
         <ul id="catList" class="list-group"></ul>
       </div>
@@ -117,10 +119,12 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
             <div class="col-12 col-md-4"><input id="pName" class="form-control" placeholder="Nombre" required></div>
             <div class="col-6 col-md-3"><input id="pPrice" type="number" min="0" step="any" class="form-control" placeholder="Precio de venta" required></div>
             <div class="col-6 col-md-3"><select id="pCat" class="form-select" required></select></div>
+            <div class="col-6 col-md-3"><div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="pCtl"><label class="form-check-label" for="pCtl">Controlar existencias</label></div></div>
+            <div class="col-6 col-md-3"><input id="pStock" type="number" min="0" class="form-control" placeholder="Stock inicial"></div>
             <div class="col-12 col-md-2"><button class="btn btn-success w-100">Guardar</button></div>
           </form></div>
         <div class="card p-3"><div class="table-responsive"><table class="table table-sm align-middle">
-          <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th></th></tr></thead>
+          <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th></th></tr></thead>
           <tbody id="prodBody"></tbody></table></div></div>
       </div>
 
@@ -138,7 +142,9 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
         <div class="card p-3 mb-3"><h5>Registrar compra</h5>
           <form id="compForm" class="row g-2">
             <div class="col-12 col-md-4"><select id="cSup" class="form-select"></select></div>
-            <div class="col-12 col-md-4"><select id="cProd" class="form-select" required></select></div>
+            <div class="col-12 col-md-4"><select id="cProd" class="form-select"></select></div>
+            <div class="col-6"><select id="cCat" class="form-select"></select></div>
+            <div class="col-6"><input id="cDesc" class="form-control" placeholder="Descripción (si no eliges producto)"></div>
             <div class="col-12 col-md-4"><input id="cFecha" type="date" class="form-control" required></div>
             <div class="col-4"><input id="cQty" type="number" min="1" class="form-control" placeholder="Cantidad" required></div>
             <div class="col-4"><input id="cCost" type="number" min="0" step="any" class="form-control" placeholder="Costo" required></div>
@@ -200,7 +206,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f4f7f6}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAldbC3MFpbIZqiCs3TLX6dnMOAzDWS19o",
@@ -284,11 +290,14 @@ async function loadAdmin() {
 }
 const catName = id => (cats.find(c => c.id === id) || {}).nombre || 'Sin categoría';
 
+const isIns = id => (cats.find(c => c.id === id) || {}).tipo === 'insumo';
 function renderCats() {
-  $('catList').innerHTML = cats.map(c => `<li class="list-group-item d-flex justify-content-between">${esc(c.nombre)}
+  $('catList').innerHTML = cats.map(c => `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${esc(c.nombre)}
+    <span class="badge ${c.tipo === 'insumo' ? 'bg-warning text-dark' : 'bg-success'}">${c.tipo === 'insumo' ? 'insumos · oculta al vendedor' : 'venta'}</span></span>
     <button class="btn btn-sm btn-outline-danger" onclick="delDoc('categorias','${c.id}')">Borrar</button></li>`).join('')
     || '<li class="list-group-item text-muted">Sin categorías</li>';
-  $('pCat').innerHTML = '<option value="">Categoría…</option>' + cats.map(c => `<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+  $('pCat').innerHTML = '<option value="">Categoría…</option>' + cats.map(c => `<option value="${c.id}">${esc(c.nombre)}${c.tipo === 'insumo' ? ' (insumo)' : ''}</option>`).join('');
+  $('cCat').innerHTML = '<option value="">Categoría de insumo (opcional)</option>' + cats.filter(c => c.tipo === 'insumo').map(c => `<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
 }
 function renderSups() {
   $('supList').innerHTML = sups.map(s => `<li class="list-group-item d-flex justify-content-between">
@@ -298,11 +307,20 @@ function renderSups() {
   $('cSup').innerHTML = '<option value="">Sin proveedor</option>' + sups.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
 }
 function renderProds() {
-  $('prodBody').innerHTML = prods.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(catName(p.categoriaId))}</td><td>${money(p.price)}</td>
+  const stk = p => !p.controlStock ? '<span class="text-muted">—</span>'
+    : `<span class="badge ${(p.stock || 0) <= 0 ? 'bg-danger' : (p.stock || 0) <= 5 ? 'bg-warning text-dark' : 'bg-success'}">${p.stock || 0}</span>`;
+  $('prodBody').innerHTML = prods.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(catName(p.categoriaId))}</td><td>${money(p.price)}</td><td>${stk(p)}</td>
     <td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="editPrice('${p.id}')">Precio</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="editStock('${p.id}')">Stock</button>
     <button class="btn btn-sm btn-outline-danger" onclick="delDoc('products','${p.id}')">X</button></td></tr>`).join('')
-    || '<tr><td colspan="4" class="text-muted">Sin productos</td></tr>';
-  $('cProd').innerHTML = '<option value="">Producto…</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    || '<tr><td colspan="5" class="text-muted">Sin productos</td></tr>';
+  $('cProd').innerHTML = '<option value="">Producto (opcional)</option>' + prods.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  renderLow();
+}
+function renderLow() {
+  const l = prods.filter(p => p.controlStock && (p.stock || 0) <= 5).sort((a, b) => (a.stock || 0) - (b.stock || 0));
+  $('lowBox').innerHTML = l.length ? `<div class="alert alert-warning"><b>⚠️ Inventario bajo</b><ul class="mb-0">${l.map(p => (p.stock || 0) <= 0
+    ? `<li class="text-danger"><b>${esc(p.name)}</b>: agotado (oculto al vendedor)</li>` : `<li>${esc(p.name)}: quedan <b>${p.stock}</b></li>`).join('')}</ul></div>` : '';
 }
 
 async function loadUsers() {
@@ -318,7 +336,7 @@ window.toggleUser = async (id, activar) => { await updateDoc(doc(db, "usuarios",
 
 async function loadCompras() {
   const snap = await getDocs(query(col("compras"), orderBy("fecha", "desc"), limit(30)));
-  $('compBody').innerHTML = snap.docs.map(d => d.data()).map(c => `<tr><td>${fmtD(c.fecha.toDate())}</td><td>${esc(c.producto)}</td>
+  $('compBody').innerHTML = snap.docs.map(d => d.data()).map(c => `<tr><td>${fmtD(c.fecha.toDate())}</td><td>${esc(c.producto)} <small class="text-muted">${esc(c.categoria || '')}</small></td>
     <td>${esc(c.proveedor || '—')}</td><td>${c.cantidad}</td><td>${money(c.costoUnidad)}</td><td class="text-end">${money(c.costoTotal)}</td></tr>`).join('')
     || '<tr><td colspan="6" class="text-muted">Sin compras</td></tr>';
 }
@@ -356,13 +374,20 @@ $('mesSel').addEventListener('change', async () => {
 });
 
 window.delDoc = async (c, id) => { if (!confirm('¿Borrar?')) return; await deleteDoc(bdoc(c, id)); loadAdmin(); };
+window.editStock = async id => {
+  const p = prods.find(x => x.id === id);
+  const v = prompt('Existencias actuales (déjalo vacío para no controlar existencias):', p.controlStock ? (p.stock || 0) : '');
+  if (v === null) return;
+  await updateDoc(bdoc("products", id), v.trim() === '' ? { controlStock: false } : { controlStock: true, stock: Number(v) || 0 });
+  prods = await rows("products"); renderProds();
+};
 window.editPrice = async id => {
   const v = prompt('Nuevo precio de venta:'); if (v === null || v === '' || isNaN(v)) return;
   await updateDoc(bdoc("products", id), { price: Number(v) }); prods = await rows("products"); renderProds();
 };
 
 $('catForm').addEventListener('submit', async e => {
-  e.preventDefault(); await addDoc(col("categorias"), { nombre: $('catName').value.trim() });
+  e.preventDefault(); await addDoc(col("categorias"), { nombre: $('catName').value.trim(), tipo: $('catTipo').value });
   e.target.reset(); cats = await rows("categorias"); renderCats(); renderProds();
 });
 $('supForm').addEventListener('submit', async e => {
@@ -371,17 +396,23 @@ $('supForm').addEventListener('submit', async e => {
 });
 $('prodForm').addEventListener('submit', async e => {
   e.preventDefault();
-  await addDoc(col("products"), { name: $('pName').value.trim(), price: Number($('pPrice').value), categoriaId: $('pCat').value });
+  await addDoc(col("products"), { name: $('pName').value.trim(), price: Number($('pPrice').value), categoriaId: $('pCat').value, controlStock: $('pCtl').checked, stock: Number($('pStock').value) || 0 });
   e.target.reset(); prods = await rows("products"); renderProds();
 });
 $('compForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const p = prods.find(x => x.id === $('cProd').value); if (!p) return;
+  const p = prods.find(x => x.id === $('cProd').value), desc = $('cDesc').value.trim();
+  if (!p && !desc) return alert('Elige un producto o escribe una descripción.');
   const q = Number($('cQty').value), c = Number($('cCost').value), porU = $('cModo').value === 'unidad';
-  const s = sups.find(x => x.id === $('cSup').value);
-  await addDoc(col("compras"), { productoId: p.id, producto: p.name, proveedorId: s ? s.id : '', proveedor: s ? s.nombre : '',
-    cantidad: q, costoUnidad: porU ? c : c / q, costoTotal: porU ? c * q : c, fecha: new Date($('cFecha').value + 'T12:00:00') });
-  e.target.reset(); $('cFecha').value = dayKey(); await Promise.all([loadCompras(), loadSales()]);
+  const s = sups.find(x => x.id === $('cSup').value), cat = cats.find(x => x.id === ($('cCat').value || (p && p.categoriaId)));
+  const b = writeBatch(db);
+  b.set(doc(col("compras")), { productoId: p ? p.id : '', producto: p ? p.name : desc, categoria: cat ? cat.nombre : '',
+    proveedorId: s ? s.id : '', proveedor: s ? s.nombre : '', cantidad: q, costoUnidad: porU ? c : c / q,
+    costoTotal: porU ? c * q : c, fecha: new Date($('cFecha').value + 'T12:00:00') });
+  if (p && p.controlStock) b.update(bdoc("products", p.id), { stock: increment(q) });
+  try { await b.commit(); } catch (err) { return alert('Error: ' + err.message); }
+  e.target.reset(); $('cFecha').value = dayKey();
+  prods = await rows("products"); renderProds(); await Promise.all([loadCompras(), loadSales()]);
 });
 $('createUserForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -397,7 +428,7 @@ $('createUserForm').addEventListener('submit', async e => {
 });
 
 // ---------- VENDEDOR ----------
-let cart = {}, editId = null, selCat = '', mine = [];
+let cart = {}, orig = {}, editId = null, selCat = '', mine = [];
 const sView = v => ['Home', 'New', 'Done'].forEach(x => show('s' + x, x.toLowerCase() === v));
 
 async function loadSeller() {
@@ -413,20 +444,22 @@ async function loadMine() {
     <span class="text-nowrap"><b>${money(v.totalGanancia)}</b> <button class="btn btn-sm btn-outline-primary ms-1" onclick="editSale('${v.id}')">Editar</button></span></li>`).join('')
     || '<li class="list-group-item text-muted">Aún no hay ventas hoy</li>';
 }
-window.backHome = () => { sView('home'); loadMine(); };
+window.backHome = () => { sView('home'); loadMine(); rows("products").then(r => prods = r); };
 window.cancelSale = () => backHome();
 window.startSale = old => {
-  cart = {}; editId = old ? old.id : null;
-  (old ? old.items || [] : []).forEach(i => cart[i.id] = { nombre: i.nombre, precio: i.precio, cantidad: i.cantidad });
+  cart = {}; orig = {}; editId = old ? old.id : null;
+  (old ? old.items || [] : []).forEach(i => { cart[i.id] = { nombre: i.nombre, precio: i.precio, cantidad: i.cantidad }; orig[i.id] = i.cantidad; });
   $('sTitle').innerText = old ? 'Editar venta' : 'Nueva venta';
   selCat = groups()[0]?.id || ''; sView('new'); renderNew();
 };
 window.editSale = id => startSale(mine.find(v => v.id === id));
 
-const groups = () => [...cats, ...(prods.some(p => !p.categoriaId) ? [{ id: '_', nombre: 'Otros' }] : [])];
+const visible = p => (p.categoriaId ? !isIns(p.categoriaId) : true) && (!p.controlStock || (p.stock || 0) > 0 || cart[p.id]);
+const groups = () => [...cats.filter(c => c.tipo !== 'insumo'), ...(prods.some(p => !p.categoriaId && visible(p)) ? [{ id: '_', nombre: 'Otros' }] : [])];
 window.pickCat = id => { selCat = id; renderNew(); };
 window.chg = (id, d) => {
   const b = prods.find(x => x.id === id);
+  if (d > 0 && b && b.controlStock && (cart[id]?.cantidad || 0) + d > (b.stock || 0) + (orig[id] || 0)) return alert('No hay más existencias de ' + b.name);
   if (!cart[id]) { if (!b) return; cart[id] = { nombre: b.name, precio: b.price, cantidad: 0 }; }
   cart[id].cantidad += d; if (cart[id].cantidad <= 0) delete cart[id];
   renderNew();
@@ -434,9 +467,9 @@ window.chg = (id, d) => {
 function renderNew() {
   $('catBar').innerHTML = groups().map(g => `<button class="btn ${g.id === selCat ? 'btn-primary' : 'btn-outline-primary'}" onclick="pickCat('${g.id}')">${esc(g.nombre)}</button>`).join('')
     || '<span class="text-muted">El administrador aún no creó categorías.</span>';
-  $('prodGrid').innerHTML = prods.filter(p => selCat === '_' ? !p.categoriaId : p.categoriaId === selCat).map(p => `
+  $('prodGrid').innerHTML = prods.filter(p => visible(p) && (selCat === '_' ? !p.categoriaId : p.categoriaId === selCat)).map(p => `
     <div class="col-6 col-md-4"><div class="pcard bg-white p-2 text-center">
-      <div class="fw-semibold">${esc(p.name)}</div><div class="text-muted small mb-2">${money(p.price)}</div>
+      <div class="fw-semibold">${esc(p.name)}</div><div class="text-muted small mb-2">${money(p.price)}${p.controlStock && (p.stock || 0) <= 5 ? ` · <span class="text-danger">quedan ${p.stock || 0}</span>` : ''}</div>
       <div class="d-flex justify-content-center align-items-center gap-2">
         <button class="btn btn-sm btn-outline-secondary" onclick="chg('${p.id}',-1)">−</button>
         <b>${cart[p.id]?.cantidad || 0}</b>
@@ -457,8 +490,15 @@ window.finishSale = async () => {
   const total = items.reduce((a, i) => a + i.precio * i.cantidad, 0);
   const data = { items, productosDetalles: items.map(i => `${i.nombre} x${i.cantidad}`), cantidad: sum(items, 'cantidad'), totalGanancia: total };
   try {
-    if (editId) await updateDoc(bdoc("ventas", editId), data);
-    else await addDoc(col("ventas"), { ...data, vendedorId: me.uid, vendedorNombre: me.nombre || me.email, vendedorEmail: me.email, fecha: new Date(), dia: dayKey() });
+    const b = writeBatch(db), upd = [];
+    if (editId) b.update(bdoc("ventas", editId), data);
+    else b.set(doc(col("ventas")), { ...data, vendedorId: me.uid, vendedorNombre: me.nombre || me.email, vendedorEmail: me.email, fecha: new Date(), dia: dayKey() });
+    new Set([...Object.keys(cart), ...Object.keys(orig)]).forEach(id => {
+      const p = prods.find(x => x.id === id), delta = (cart[id]?.cantidad || 0) - (orig[id] || 0);
+      if (p && p.controlStock && delta) { b.update(bdoc("products", id), { stock: increment(-delta) }); upd.push([p, delta]); }
+    });
+    await b.commit();
+    upd.forEach(([p, d]) => p.stock = (p.stock || 0) - d);
     $('doneTotal').innerText = money(total); sView('done');
   } catch (err) { alert("No se pudo guardar: " + err.message); }
 };
