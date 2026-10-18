@@ -469,7 +469,9 @@ async function loadSuper() {
   negs = (await getDocs(collection(db, "negocios"))).docs.map(d => ({ id: d.id, ...d.data() }));
   $('negList').innerHTML = negs.map(n => `<li class="list-group-item d-flex justify-content-between align-items-center">
     <span>${esc(n.nombre)} <small class="text-muted">código: ${esc(n.codigo)}</small> <span class="badge ${n.activo === false ? 'bg-secondary' : 'bg-success'}">${n.activo === false ? 'inactivo' : 'activo'}</span></span>
-    <button class="btn btn-sm ${n.activo === false ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleNeg('${n.id}',${n.activo === false})">${n.activo === false ? 'Activar' : 'Inactivar'}</button></li>`).join('')
+    <span class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="editNeg('${n.id}')">Editar</button>
+    <button class="btn btn-sm ${n.activo === false ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleNeg('${n.id}',${n.activo === false})">${n.activo === false ? 'Activar' : 'Inactivar'}</button>
+    <button class="btn btn-sm btn-outline-danger" onclick="delNeg('${n.id}')">Eliminar</button></span></li>`).join('')
     || '<li class="list-group-item text-muted">Aún no hay negocios</li>';
   $('aNeg').innerHTML = '<option value="">Negocio…</option>' + negs.map(n => `<option value="${n.id}">${esc(n.nombre)}</option>`).join('');
   const adm = (await getDocs(query(collection(db, "usuarios"), where("role", "==", "admin")))).docs.map(d => d.data());
@@ -477,6 +479,26 @@ async function loadSuper() {
     || '<li class="list-group-item text-muted">Sin administradores</li>';
 }
 window.toggleNeg = async (id, act) => { await updateDoc(doc(db, "negocios", id), { activo: act }); loadSuper(); };
+window.editNeg = async id => {
+  const n = negs.find(x => x.id === id);
+  const v = prompt('Nuevo nombre del negocio:', n.nombre);
+  if (!v || !v.trim()) return;
+  await updateDoc(doc(db, "negocios", id), { nombre: v.trim() }); loadSuper();
+};
+window.delNeg = async id => {
+  const n = negs.find(x => x.id === id);
+  if (prompt(`Se borrarán TODOS los datos de "${n.nombre}" (productos, ventas, compras y usuarios). Escribe el código "${n.codigo}" para confirmar:`) !== n.codigo) return;
+  try {
+    for (const c of ['products', 'categorias', 'proveedores', 'compras', 'ventas']) {
+      const snap = await getDocs(collection(db, 'negocios', id, c));
+      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+    }
+    const us = await getDocs(query(collection(db, 'usuarios'), where('negocioId', '==', id)));
+    await Promise.all(us.docs.map(d => deleteDoc(d.ref)));
+    await deleteDoc(doc(db, 'negocios', id));
+    loadSuper();
+  } catch (err) { alert('Error al eliminar: ' + err.message); }
+};
 $('negForm').addEventListener('submit', async e => {
   e.preventDefault();
   const nombre = $('nNom').value.trim(), codigo = slug($('nCod').value);
