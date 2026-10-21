@@ -228,7 +228,7 @@ const DOM = '@vendedor.lumeozone.app';
 const toEmail = (u, n) => u.includes('@') ? u.trim() : slug(u) + '.' + slug(n || '') + DOM;
 const toPass = p => /^\d{4}$/.test(p) ? 'lz' + p + 'ok' : p;
 let NEG = '', NEGDATA = null;
-const col = n => (n === 'usuarios' || n === 'negocios') ? collection(db, n) : collection(db, 'negocios', NEG, n);
+const col = n => (n === 'perfiles' || n === 'negocios') ? collection(db, n) : collection(db, 'negocios', NEG, n);
 const bdoc = (c, id) => doc(db, 'negocios', NEG, c, id);
 const fmt = d => d.toLocaleString('es-CO', {dateStyle: 'short', timeStyle: 'short'});
 const fmtD = d => d.toLocaleDateString('es-CO');
@@ -261,7 +261,7 @@ onAuthStateChanged(auth, async user => {
   if (!user) { me = null; show('login-section', true); show('dashboard-section', false); return; }
   const box = $('login-error');
   try {
-    const s = await getDoc(doc(db, "usuarios", user.uid));
+    const s = await getDoc(doc(db, "perfiles", user.uid));
     if (!s.exists()) { box.innerText = "Usuario no registrado. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
     if (s.data().activo === false) { box.innerText = "Tu usuario está inactivo. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
     me = { uid: user.uid, email: user.email, ...s.data() };
@@ -324,7 +324,7 @@ function renderLow() {
 }
 
 async function loadUsers() {
-  const l = (await getDocs(query(col("usuarios"), where("negocioId", "==", NEG)))).docs.map(d => ({ id: d.id, ...d.data() }));
+  const l = (await getDocs(query(col("perfiles"), where("negocioId", "==", NEG)))).docs.map(d => ({ id: d.id, ...d.data() }));
   $('userList').innerHTML = l.map(u => {
     const inact = u.activo === false;
     return `<li class="list-group-item d-flex justify-content-between align-items-center">
@@ -332,7 +332,7 @@ async function loadUsers() {
     ${u.role === 'admin' ? '' : `<button class="btn btn-sm ${inact ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleUser('${u.id}',${inact})">${inact ? 'Activar' : 'Inactivar'}</button>`}</li>`;
   }).join('');
 }
-window.toggleUser = async (id, activar) => { await updateDoc(doc(db, "usuarios", id), { activo: activar }); loadUsers(); };
+window.toggleUser = async (id, activar) => { await updateDoc(doc(db, "perfiles", id), { activo: activar }); loadUsers(); };
 
 async function loadCompras() {
   const snap = await getDocs(query(col("compras"), orderBy("fecha", "desc"), limit(30)));
@@ -420,7 +420,7 @@ $('createUserForm').addEventListener('submit', async e => {
   if (!slug(nombre) || !/^\d{4}$/.test(pin)) return alert('Escribe un nombre válido y un código de 4 dígitos.');
   try {
     const cred = await createUserWithEmailAndPassword(auth2, email, toPass(pin));
-    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'vendedor', activo: true, negocioId: NEG });
+    await setDoc(doc(db, "perfiles", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'vendedor', activo: true, negocioId: NEG });
     await signOut(auth2);
     alert(`Vendedor creado.\nNegocio: ${NEGDATA.codigo}\nUsuario: ${nombre}\nCódigo: ${pin}`);
     e.target.reset(); loadUsers();
@@ -514,7 +514,7 @@ async function loadSuper() {
     <button class="btn btn-sm btn-outline-danger" onclick="delNeg('${n.id}')">Eliminar</button></span></li>`).join('')
     || '<li class="list-group-item text-muted">Aún no hay negocios</li>';
   $('aNeg').innerHTML = '<option value="">Negocio…</option>' + negs.map(n => `<option value="${n.id}">${esc(n.nombre)}</option>`).join('');
-  const adm = (await getDocs(query(collection(db, "usuarios"), where("role", "==", "admin")))).docs.map(d => d.data());
+  const adm = (await getDocs(query(collection(db, "perfiles"), where("role", "==", "admin")))).docs.map(d => d.data());
   $('admList').innerHTML = adm.map(a => `<li class="list-group-item">${esc(a.nombre)} <small class="text-muted">${esc(a.email)}</small> · ${esc((negs.find(n => n.id === a.negocioId) || {}).nombre || '')}</li>`).join('')
     || '<li class="list-group-item text-muted">Sin administradores</li>';
 }
@@ -533,7 +533,7 @@ window.delNeg = async id => {
       const snap = await getDocs(collection(db, 'negocios', id, c));
       await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
     }
-    const us = await getDocs(query(collection(db, 'usuarios'), where('negocioId', '==', id)));
+    const us = await getDocs(query(collection(db, 'perfiles'), where('negocioId', '==', id)));
     await Promise.all(us.docs.map(d => deleteDoc(d.ref)));
     await deleteDoc(doc(db, 'negocios', id));
     loadSuper();
@@ -552,7 +552,7 @@ $('admForm').addEventListener('submit', async e => {
   const nombre = $('aNom').value.trim(), email = $('aMail').value.trim();
   try {
     const cred = await createUserWithEmailAndPassword(auth2, email, $('aPass').value);
-    await setDoc(doc(db, "usuarios", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'admin', activo: true, negocioId: $('aNeg').value });
+    await setDoc(doc(db, "perfiles", cred.user.uid), { uid: cred.user.uid, nombre, email, role: 'admin', activo: true, negocioId: $('aNeg').value });
     await signOut(auth2);
     alert(`Administrador creado: ${email}`); e.target.reset(); loadSuper();
   } catch (err) { alert(err.code === 'auth/email-already-in-use' ? 'Ese correo ya existe en Authentication.' : 'Error: ' + err.message); }
