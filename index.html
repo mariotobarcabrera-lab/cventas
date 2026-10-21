@@ -216,7 +216,7 @@ const firebaseConfig = {
   messagingSenderId: "953137572437",
   appId: "1:953137572437:web:cc163afa907309005042dc"
 };
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig, "ventas"); // sesión propia, separada de la app de gastos
 const auth = getAuth(app), db = getFirestore(app);
 const auth2 = getAuth(initializeApp(firebaseConfig, "secundaria"));
 
@@ -269,7 +269,7 @@ onAuthStateChanged(auth, async user => {
     if (me.role !== 'superadmin') {
       NEG = me.negocioId || '';
       const n = NEG ? await getDoc(doc(db, "negocios", NEG)) : null;
-      if (!n || !n.exists() || n.data().activo === false) { box.innerText = "Tu negocio no está disponible. Contacta al administrador."; box.classList.remove('d-none'); return signOut(auth); }
+      if (!n || !n.exists() || n.data().activo === false) { box.innerText = `Tu negocio no está disponible (rol: ${me.role || "vacío"}). Contacta al administrador.`; box.classList.remove('d-none'); return signOut(auth); }
       NEGDATA = n.data();
     }
     show('login-section', false); show('dashboard-section', true);
